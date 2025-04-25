@@ -6,6 +6,8 @@ import {
   getUserProfile,
   updateUserProfile,
   updatePassword,
+  getAllUsers,
+  deleteUser,
 } from "../controllers/usersController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
@@ -21,6 +23,10 @@ router.get("/:id", verifyToken, getUserProfile);
 router.put("/:id", verifyToken, updateUserProfile);
 
 router.put("/update-password", verifyToken, updatePassword);
+
+router.get("/admin/users", verifyToken, getAllUsers);
+
+router.delete("/admin/users/:id", verifyToken, deleteUser);
 
 // ✅ Route protégée (accès seulement avec token valide)
 router.get("/profile", verifyToken, (req, res) => {

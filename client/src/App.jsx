@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import Profil from "./pages/Profil";
+import AdminUsers from "./pages/AdminUsers";
 
 function App() {
   const { user } = useAuth();
@@ -42,6 +43,19 @@ function App() {
           <PrivateRoute>
             <Profil />
           </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          user?.role === "admin" ? (
+            <PrivateRoute>
+              <AdminUsers />
+            </PrivateRoute>
+          ) : (
+            <Navigate to="/" replace />
+          )
         }
       />
     </Routes>

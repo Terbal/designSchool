@@ -35,6 +35,51 @@ export const registerUser = async (req, res) => {
   }
 };
 
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { nom, email, mot_de_passe } = req.body;
+
+  try {
+    // Seuls l'utilisateur lui-même ou un admin peuvent modifier
+    if (req.user.id !== parseInt(id) && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Accès interdit" });
+    }
+
+    const fields = [];
+    const values = [];
+
+    if (nom) {
+      fields.push("nom = ?");
+      values.push(nom);
+    }
+    if (email) {
+      fields.push("email = ?");
+      values.push(email);
+    }
+    if (mot_de_passe) {
+      const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
+      fields.push("mot_de_passe = ?");
+      values.push(hashedPassword);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: "Aucune donnée à mettre à jour" });
+    }
+
+    values.push(id); // Ajout de l'ID pour WHERE
+
+    await db.query(
+      `UPDATE users SET ${fields.join(", ")} WHERE id = ?`,
+      values
+    );
+
+    res.json({ message: "Utilisateur mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du profil:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
 // GET user info
 export const getUserProfile = async (req, res) => {
   const userId = req.params.id;
@@ -52,6 +97,53 @@ export const getUserProfile = async (req, res) => {
     res.json(rows[0]);
   } catch (error) {
     res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // On vérifie que l'utilisateur est bien admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Accès interdit" });
+    }
+
+    const [rows] = await db.query("SELECT id, nom, email, role FROM users");
+    res.json(rows);
+  } catch (err) {
+    console.error("Erreur récupération utilisateurs:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const getAllUsersDelete = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Accès interdit" });
+  }
+
+  const userId = req.params.id;
+
+  try {
+    await db.query("DELETE FROM users WHERE id = ?", [userId]);
+    res.json({ message: "Utilisateur supprimé" });
+  } catch (err) {
+    console.error("Erreur suppression utilisateur:", err);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Accès interdit" });
+    }
+
+    await db.query("DELETE FROM users WHERE id = ?", [userId]);
+    res.json({ message: "Utilisateur supprimé avec succès" });
+  } catch (err) {
+    console.error("Erreur suppression utilisateur:", err);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
   }
 };
 
