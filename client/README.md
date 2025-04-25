@@ -10,3 +10,18 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+# 🎓 designSchool
+
+Plateforme de formation en ligne développée avec React, Node.js, Express et MariaDB.
+
+## 🚀 Fonctionnalités principales
+
+- Authentification avec inscription/connexion
+- Sécurité des mots de passe (bcrypt + JWT)
+- Interface responsive avec Material UI
+- Tableau de bord utilisateur
+- Routage protégé avec React Router
+- Stockage du token JWT (connexion persistante)
+
+## 📁 Structure du projet

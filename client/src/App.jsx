@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import Profil from "./pages/Profil";
 
 function App() {
   const { user } = useAuth();
@@ -35,6 +36,14 @@ function App() {
       />
 
       <Route path="*" element={<Navigate to="/" />} />
+      <Route
+        path="/profil"
+        element={
+          <PrivateRoute>
+            <Profil />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
