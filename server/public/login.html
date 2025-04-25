@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion</title>
+</head>
+<body>
+  <h1>Connexion</h1>
+  <form id="loginForm">
+    <input type="email" name="email" placeholder="Email" required><br>
+    <input type="password" name="mot_de_passe" placeholder="Mot de passe" required><br>
+    <button type="submit">Se connecter</button>
+  </form>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = {
+        email: form.email.value,
+        mot_de_passe: form.mot_de_passe.value
+      };
+
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      console.log(result);
+      alert(result.message || "Connexion réussie");
+    });
+  </script>
+</body>
+</html>
