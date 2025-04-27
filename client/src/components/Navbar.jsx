@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import {
   AppBar,
   Toolbar,
@@ -9,15 +8,31 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemIcon,
   Box,
+  useTheme,
+  Slide,
+  useScrollTrigger,
 } from "@mui/material";
+import { motion } from "framer-motion"; // <== NOUVEAU
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonIcon from "@mui/icons-material/Person";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import LoginIcon from "@mui/icons-material/Login";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
+  const [scrollProgress, setScrollProgress] = useState(0);
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const theme = useTheme();
+  const trigger = useScrollTrigger({ threshold: 100 });
+
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -25,9 +40,15 @@ const Navbar = () => {
     setOpen(state);
   };
 
+  const isHomePage = location.pathname === "/";
+
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50); // après 50px de scroll => devient opaque
+      const progress =
+        (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
+        100;
+      setScrolled(window.scrollY > 50);
+      setScrollProgress(progress);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -36,118 +57,103 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar
-        position="fixed"
-        sx={{
-          background: scrolled ? "#1976D2" : "transparent",
-          transition: "background 0.3s",
-          boxShadow: scrolled ? 3 : "none",
-        }}
-      >
-        <Toolbar>
-          <Typography
-            variant="h6"
+      <Slide appear={false} direction="down" in={!trigger}>
+        <div>
+          {/* ProgressBar */}
+          <Box
             sx={{
-              flexGrow: 1,
-              fontFamily: "Poppins",
-              fontWeight: 600,
+              position: "fixed",
+              top: 0,
+              left: 0,
+              height: 4,
+              width: `${scrollProgress}%`,
+              backgroundColor: theme.palette.secondary.main,
+              zIndex: 1201,
+              transition: "width 0.2s ease-out",
+            }}
+          />
+
+          {/* NAVBAR */}
+          <AppBar
+            position="fixed"
+            elevation={0}
+            sx={{
+              background: isHomePage
+                ? scrolled
+                  ? theme.palette.primary.main
+                  : "transparent"
+                : theme.palette.primary.main,
               color: "white",
+              backdropFilter: isHomePage && !scrolled ? "blur(10px)" : "none",
+              transition: "all 0.4s ease",
+              height: scrolled ? 64 : 80,
+              display: "flex",
+              justifyContent: "center",
+              boxShadow: scrolled
+                ? `0 2px ${Math.min(scrolled * 0.1, 8)}px rgba(0,0,0,0.3)`
+                : "none",
             }}
           >
-            école de design
-          </Typography>
+            <Toolbar>
+              {/* LOGO - avec Motion (classique) */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                style={{ flexGrow: 1 }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 600,
+                    color: "white",
+                    transition: "color 0.3s ease",
+                  }}
+                >
+                  école de design
+                </Typography>
+              </motion.div>
 
-          {/* Desktop */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-            {user ? (
-              <>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/dashboard"
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      color: "#BBDEFB",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/profil"
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      color: "#BBDEFB",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  Mon Profil
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={logout}
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      color: "#FF8A80",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  Déconnexion
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/login"
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      color: "#BBDEFB",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  Connexion
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/signup"
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      color: "#BBDEFB",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  Inscription
-                </Button>
-              </>
-            )}
-          </Box>
+              {/* BOUTONS Desktop - avec whileInView */}
+              <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
+                {user ? (
+                  <>
+                    {navButton("/dashboard", "Dashboard", 0.1)}
+                    {navButton("/profil", "Mon Profil", 0.2)}
+                    {navButtonLogout("Déconnexion", 0.3)}
+                  </>
+                ) : (
+                  <>
+                    {navButton("/login", "Connexion", 0.1)}
+                    {navButton("/signup", "Inscription", 0.2)}
+                  </>
+                )}
+              </Box>
 
-          {/* Mobile */}
-          <Box sx={{ display: { xs: "block", md: "none" } }}>
-            <IconButton onClick={toggleDrawer(true)} sx={{ color: "white" }}>
-              <MenuIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+              {/* Menu Burger Mobile */}
+              <Box sx={{ display: { xs: "block", md: "none" } }}>
+                <IconButton
+                  onClick={toggleDrawer(true)}
+                  sx={{ color: "white" }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Box>
+            </Toolbar>
+          </AppBar>
 
-      {/* Drawer menu */}
-      <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
+          <Box />
+        </div>
+      </Slide>
+
+      {/* Drawer Menu Mobile */}
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={toggleDrawer(false)}
+        transitionDuration={{ enter: 400, exit: 300 }}
+      >
         <Box
           sx={{ width: 250 }}
           role="presentation"
@@ -156,24 +162,16 @@ const Navbar = () => {
           <List>
             {user ? (
               <>
-                <ListItem button component={Link} to="/dashboard">
-                  <ListItemText primary="Dashboard" />
-                </ListItem>
-                <ListItem button component={Link} to="/profil">
-                  <ListItemText primary="Mon Profil" />
-                </ListItem>
-                <ListItem button onClick={logout}>
-                  <ListItemText primary="Déconnexion" />
-                </ListItem>
+                {drawerLink("/", <HomeIcon />, "Accueil")}
+                {drawerLink("/dashboard", <DashboardIcon />, "Dashboard")}
+                {drawerLink("/profil", <PersonIcon />, "Mon Profil")}
+                {drawerButton(logout, <ExitToAppIcon />, "Déconnexion")}
               </>
             ) : (
               <>
-                <ListItem button component={Link} to="/login">
-                  <ListItemText primary="Connexion" />
-                </ListItem>
-                <ListItem button component={Link} to="/signup">
-                  <ListItemText primary="Inscription" />
-                </ListItem>
+                {drawerLink("/", <HomeIcon />, "Accueil")}
+                {drawerLink("/login", <LoginIcon />, "Connexion")}
+                {drawerLink("/signup", <HowToRegIcon />, "Inscription")}
               </>
             )}
           </List>
@@ -182,5 +180,70 @@ const Navbar = () => {
     </>
   );
 };
+
+// --- Composants auxiliaires mis à jour ---
+
+const navButton = (to, label, delay = 0) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay }}
+    viewport={{ once: true }}
+  >
+    <Button
+      component={Link}
+      to={to}
+      sx={{
+        color: "white",
+        fontWeight: 600,
+        "&:hover": {
+          color: "#BBDEFB",
+          transform: "scale(1.05)",
+        },
+        transition: "all 0.3s ease",
+      }}
+    >
+      {label}
+    </Button>
+  </motion.div>
+);
+
+const navButtonLogout = (label, delay = 0) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay }}
+    viewport={{ once: true }}
+  >
+    <Button
+      onClick={() => window.location.reload()}
+      sx={{
+        color: "white",
+        fontWeight: 600,
+        "&:hover": {
+          color: "#FF8A80",
+          transform: "scale(1.05)",
+        },
+        transition: "all 0.3s ease",
+      }}
+    >
+      {label}
+    </Button>
+  </motion.div>
+);
+
+const drawerLink = (to, icon, label) => (
+  <ListItem button component={Link} to={to}>
+    <ListItemIcon>{icon}</ListItemIcon>
+    <ListItemText primary={label} />
+  </ListItem>
+);
+
+const drawerButton = (action, icon, label) => (
+  <ListItem button onClick={action}>
+    <ListItemIcon>{icon}</ListItemIcon>
+    <ListItemText primary={label} />
+  </ListItem>
+);
 
 export default Navbar;

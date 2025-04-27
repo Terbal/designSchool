@@ -6,11 +6,16 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminRoute from "./components/AdminRoute";
 import Profil from "./pages/Profil";
 import AdminUsers from "./pages/AdminUsers";
+import AjoutCours from "./pages/AjoutCours";
+import ListeCours from "./pages/ListesCours";
 
 function App() {
   const { user } = useAuth();
+  console.log("Utilisateur connecté :", user);
+
   const location = useLocation();
 
   return (
@@ -58,6 +63,16 @@ function App() {
           )
         }
       />
+
+      <Route
+        path="/ajout-cours"
+        element={
+          <AdminRoute>
+            <AjoutCours />
+          </AdminRoute>
+        }
+      />
+      <Route path="/cours" element={<ListeCours />} />
     </Routes>
   );
 }

@@ -2,7 +2,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material"; // ✅ Ajout
 
-const PrivateRoute = ({ children }) => {
+const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading)
@@ -17,7 +17,7 @@ const PrivateRoute = ({ children }) => {
       </Box>
     ); // ✅ Spinner centré
 
-  return user ? children : <Navigate to="/login" replace />;
+  return user?.role === "admin" ? children : <Navigate to="/" replace />;
 };
 
-export default PrivateRoute;
+export default AdminRoute;
