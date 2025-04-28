@@ -1,23 +1,25 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext"; // en haut de ton composant si pas déjà importé
-
+import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import {
   Container,
   Typography,
   Card,
   CardContent,
-  Grid,
   Button,
   CircularProgress,
   Stack,
   TextField,
   MenuItem,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { Link } from "react-router-dom";
 
 const ListeCours = () => {
   const { user } = useAuth();
   const [cours, setCours] = useState([]);
+  const [mesCours, setMesCours] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [editingCours, setEditingCours] = useState(null);
   const [formateurs, setFormateurs] = useState([]);
@@ -27,14 +29,29 @@ const ListeCours = () => {
     formateur_id: "",
   });
 
-  // Charger tous les cours et formateurs
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resCours, resFormateurs] = await Promise.all([
-          axios.get("http://localhost:5000/api/cours"),
-          axios.get("http://localhost:5000/api/formateurs"),
-        ]);
+        let resCours;
+        if (user?.role === "formateur") {
+          resCours = await axios.get("http://localhost:5000/api/mes-modules", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+        } else if (user?.role === "etudiant") {
+          resCours = await axios.get("http://localhost:5000/api/mes-cours", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+        } else {
+          resCours = await axios.get("http://localhost:5000/api/cours");
+        }
+
+        const resFormateurs = await axios.get(
+          "http://localhost:5000/api/formateurs"
+        );
         setCours(resCours.data);
         setFormateurs(resFormateurs.data);
         setLoading(false);
@@ -43,9 +60,8 @@ const ListeCours = () => {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, []);
+  }, [user]);
 
   const handleEdit = (cours) => {
     setEditingCours(cours.id);
@@ -74,6 +90,29 @@ const ListeCours = () => {
     }
   };
 
+  const handleInscription = async (coursId) => {
+    try {
+      await axios.post(
+        `http://localhost:5000/api/inscription/cours/${coursId}/inscrire`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("Inscription réussie !");
+    } catch (err) {
+      console.error(
+        "Erreur lors de l'inscription :",
+        err.response?.data || err.message
+      );
+      alert("Erreur lors de l'inscription.");
+    }
+  };
+
+  const handleVoirEtudiants = (coursId) => {
+    window.location.href = `/modules/${coursId}/etudiants`;
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer ce cours ?")) {
       try {
@@ -93,12 +132,31 @@ const ListeCours = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
+        <Typography variant="h4">Liste des Cours</Typography>
+
+        {(user?.role === "admin" || user?.role === "formateur") && (
+          <Button
+            variant="contained"
+            color="primary"
+            component={Link}
+            to="/ajout-cours"
+          >
+            Ajouter un cours
+          </Button>
+        )}
+      </Stack>
+      {/* <Typography variant="h4" gutterBottom>
         Liste des cours
-      </Typography>
+      </Typography> */}
       <Grid container spacing={2}>
         {cours.map((c) => (
-          <Grid item xs={12} sm={6} md={4} key={c.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={c.id}>
             <Card>
               <CardContent>
                 {editingCours === c.id ? (
@@ -165,7 +223,19 @@ const ListeCours = () => {
                   </>
                 ) : (
                   <>
-                    <Typography variant="h6">{c.titre}</Typography>
+                    <Typography
+                      variant="h6"
+                      component="a"
+                      href={`/cours/${c.id}`}
+                      sx={{
+                        textDecoration: "none",
+                        color: "primary.main",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {c.titre}
+                    </Typography>
+
                     <Typography variant="body2" color="textSecondary">
                       {c.description}
                     </Typography>
@@ -180,7 +250,7 @@ const ListeCours = () => {
                         <Button
                           variant="contained"
                           color="error"
-                          onClick={handleDelete}
+                          onClick={() => handleDelete(c.id)}
                         >
                           Supprimer
                         </Button>
@@ -189,9 +259,29 @@ const ListeCours = () => {
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={handleEdit}
+                          onClick={() => handleEdit(c)}
                         >
                           Modifier
+                        </Button>
+                      )}
+
+                      {user?.role === "etudiant" && (
+                        <Button
+                          variant="outlined"
+                          color="success"
+                          onClick={() => handleInscription(c.id)}
+                        >
+                          S'inscrire
+                        </Button>
+                      )}
+
+                      {user?.role === "formateur" && (
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => handleVoirEtudiants(c.id)}
+                        >
+                          Voir les étudiants
                         </Button>
                       )}
                     </Stack>

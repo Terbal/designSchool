@@ -1,6 +1,7 @@
+// src/components/PrivateRoute.jsx
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { CircularProgress, Box } from "@mui/material"; // ✅ Ajout
+import { CircularProgress, Box } from "@mui/material";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -15,7 +16,7 @@ const PrivateRoute = ({ children }) => {
       >
         <CircularProgress size={60} thickness={4} color="primary" />
       </Box>
-    ); // ✅ Spinner centré
+    );
 
   return user ? children : <Navigate to="/login" replace />;
 };

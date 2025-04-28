@@ -6,17 +6,31 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
-import AdminRoute from "./components/AdminRoute";
 import Profil from "./pages/Profil";
 import AdminUsers from "./pages/AdminUsers";
 import AjoutCours from "./pages/AjoutCours";
 import ListeCours from "./pages/ListesCours";
+import ListeEtudiantsParModule from "./pages/ListeEtudiantsParModule";
+import MesCours from "./components/MesCours";
+import DetailsCours from "./components/DetailsCour";
+import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la route
 
 function App() {
-  const { user } = useAuth();
-  console.log("Utilisateur connecté :", user);
-
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress size={60} thickness={4} color="primary" />
+      </Box>
+    );
+  }
 
   return (
     <Routes>
@@ -42,6 +56,7 @@ function App() {
       />
 
       <Route path="*" element={<Navigate to="/" />} />
+
       <Route
         path="/profil"
         element={
@@ -67,12 +82,23 @@ function App() {
       <Route
         path="/ajout-cours"
         element={
-          <AdminRoute>
-            <AjoutCours />
-          </AdminRoute>
+          user?.role === "admin" || user?.role === "formateur" ? (
+            <PrivateRoute>
+              <AjoutCours />
+            </PrivateRoute>
+          ) : (
+            <Navigate to="/" replace />
+          )
         }
       />
+
       <Route path="/cours" element={<ListeCours />} />
+      <Route
+        path="/modules/:id/etudiants"
+        element={<ListeEtudiantsParModule />}
+      />
+      <Route path="/cours/:id" element={<DetailsCours />} />
+      <Route path="/mes-cours" element={<MesCours />} />
     </Routes>
   );
 }

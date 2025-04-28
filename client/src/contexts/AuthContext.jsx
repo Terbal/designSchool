@@ -1,20 +1,19 @@
-// client/src/contexts/AuthContext.js
+// src/contexts/AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Nouveau : état de chargement
+  const [loading, setLoading] = useState(true); // ✅ état de chargement
 
-  // Vérifier s’il y a un token au démarrage
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userInfo = localStorage.getItem("user");
     if (token && userInfo) {
       setUser(JSON.parse(userInfo));
     }
-    setLoading(false); // ✅ On arrête le chargement après vérification
+    setLoading(false);
   }, []);
 
   const login = (user, token) => {

@@ -1,111 +1,117 @@
+// src/pages/AjouterCours.jsx
 import { useState, useEffect } from "react";
 import {
   Container,
+  Typography,
   TextField,
   Button,
-  Typography,
   MenuItem,
+  Stack,
 } from "@mui/material";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext"; // Pour récupérer le user connecté
 
-const AjoutCours = () => {
+const AjouterCours = () => {
+  const { user } = useAuth();
+
+  const [formateurs, setFormateurs] = useState([]);
   const [formData, setFormData] = useState({
     titre: "",
     description: "",
-    formateur_id: "",
+    formateur_id: "", // On va le remplir automatiquement si c'est un formateur
   });
-  const [formateurs, setFormateurs] = useState([]);
-  const [message, setMessage] = useState("");
+
+  const fetchFormateurs = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/formateurs");
+      setFormateurs(res.data);
+    } catch (error) {
+      console.error("Erreur chargement formateurs:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchFormateurs = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/formateurs");
-        setFormateurs(res.data);
-      } catch (err) {
-        console.error("Erreur récupération formateurs", err);
-      }
-    };
-
-    fetchFormateurs();
-  }, []);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    if (user?.role === "admin") {
+      fetchFormateurs();
+    } else if (user?.role === "formateur") {
+      setFormData((prev) => ({ ...prev, formateur_id: user.id }));
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/cours",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+      await axios.post("http://localhost:5000/api/cours", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      alert("Cours ajouté avec succès !");
+      setFormData({
+        titre: "",
+        description: "",
+        formateur_id: user?.role === "formateur" ? user.id : "",
+      });
+    } catch (error) {
+      console.error(
+        "Erreur ajout cours :",
+        error.response?.data || error.message
       );
-      setMessage("✅ Cours ajouté avec succès !");
-      setFormData({ titre: "", description: "", formateur_id: "" });
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Erreur lors de l'ajout du cours");
+      alert("Erreur lors de l'ajout du cours.");
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Typography variant="h5" gutterBottom>
-        Ajouter un cours
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Ajouter un nouveau cours
       </Typography>
       <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Titre"
-          name="titre"
-          value={formData.titre}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          margin="normal"
-          multiline
-          rows={4}
-        />
-        <TextField
-          fullWidth
-          select
-          label="Formateur"
-          name="formateur_id"
-          value={formData.formateur_id}
-          onChange={handleChange}
-          margin="normal"
-        >
-          {formateurs.map((f) => (
-            <MenuItem key={f.id} value={f.id}>
-              {f.nom}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          sx={{ mt: 2 }}
-        >
-          Ajouter
-        </Button>
-        {message && <Typography sx={{ mt: 2 }}>{message}</Typography>}
+        <Stack spacing={2}>
+          <TextField
+            label="Titre"
+            value={formData.titre}
+            onChange={(e) =>
+              setFormData({ ...formData, titre: e.target.value })
+            }
+            required
+          />
+          <TextField
+            label="Description"
+            multiline
+            rows={4}
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            required
+          />
+
+          {user?.role === "admin" && (
+            <TextField
+              select
+              label="Formateur"
+              value={formData.formateur_id}
+              onChange={(e) =>
+                setFormData({ ...formData, formateur_id: e.target.value })
+              }
+              required
+            >
+              {formateurs.map((f) => (
+                <MenuItem key={f.id} value={f.id}>
+                  {f.nom}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
+          <Button variant="contained" color="primary" type="submit">
+            Ajouter le cours
+          </Button>
+        </Stack>
       </form>
     </Container>
   );
 };
 
-export default AjoutCours;
+export default AjouterCours;

@@ -6,6 +6,7 @@ import { keyframes } from "@emotion/react";
 import learnImg from "../assets/learn.png";
 import speakImg from "../assets/speak.png";
 import speak2Img from "../assets/speak2.png";
+import { Link } from "react-router-dom";
 
 const items = [
   {
@@ -13,16 +14,16 @@ const items = [
     desc: "Des parcours interactifs pour développer vos compétences",
     image: speak2Img,
   },
-  //   {
-  //     title: "Apprenez à votre rythme",
-  //     desc: "Avec un suivi personnalisé par nos formateurs",
-  //     image: speakImg,
-  //   },
-  //   {
-  //     title: "Rejoignez la communauté",
-  //     desc: "Partagez, progressez et réussissez ensemble",
-  //     image: learnImg,
-  //   },
+  // {
+  //   title: "",
+  //   desc: "",
+  //   image: learnImg,
+  // },
+  // {
+  //   title: "",
+  //   desc: "",
+  //   image: speakImg,
+  // },
 ];
 
 // Animation "pulse"
@@ -102,6 +103,8 @@ const HeroCarousel = () => {
                 {item.desc}
               </Typography>
               <Button
+                component={Link}
+                to="/cours" // ← CHEMIN de ta page de formations
                 variant="contained"
                 size="large"
                 sx={{

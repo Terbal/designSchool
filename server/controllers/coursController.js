@@ -5,9 +5,7 @@ export const createCours = async (req, res) => {
   const { titre, description, formateur_id } = req.body;
 
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ error: "Accès interdit" });
-    }
+    // Admin ou formateur autorisés (plus besoin de refaire le contrôle ici car checkRole le fait déjà)
 
     const [result] = await db.query(
       "INSERT INTO cours (titre, description, formateur_id) VALUES (?, ?, ?)",
@@ -68,5 +66,27 @@ export const updateCours = async (req, res) => {
   } catch (err) {
     console.error("Erreur mise à jour cours :", err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// Liste des étudiants inscrits à un module donné
+export const getEtudiantsParModule = async (req, res) => {
+  try {
+    const moduleId = req.params.id;
+
+    const [rows] = await db.query(
+      `
+      SELECT u.id, u.nom, u.email
+      FROM inscription i
+      JOIN users u ON i.etudiant_id = u.id
+      WHERE i.cours_id = ?
+    `,
+      [moduleId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Erreur récupération des étudiants du module :", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 };
