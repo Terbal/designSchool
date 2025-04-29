@@ -102,15 +102,24 @@ export default function ListeCours() {
                       >
                         Voir
                       </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={
-                          () => (window.location.href = `/cours/${c.id}`) // remplacé par le formulaire d’inscription plus tard
-                        }
-                      >
-                        S’inscrire
-                      </Button>
+
+                      {enrolled.some((e) => e.id === c.id) ? (
+                        <Chip
+                          label="Déjà inscrit"
+                          color="success"
+                          size="small"
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() =>
+                            (window.location.href = `/cours/${c.id}`)
+                          }
+                        >
+                          S’inscrire
+                        </Button>
+                      )}
                     </Stack>
                   </CardContent>
                 </Card>

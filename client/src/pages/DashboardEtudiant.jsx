@@ -92,15 +92,23 @@ export default function DashboardEtudiant() {
                       >
                         Voir plus
                       </Button>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() =>
-                          (window.location.href = `/inscription/${c.id}`)
-                        }
-                      >
-                        S'inscrire
-                      </Button>
+                      {enrolled.some((e) => e.id === c.id) ? (
+                        <Chip
+                          label="Déjà inscrit"
+                          color="primary"
+                          size="small"
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() =>
+                            (window.location.href = `/inscription/${c.id}`)
+                          }
+                        >
+                          S'inscrire
+                        </Button>
+                      )}
                     </Box>
                   </CardContent>
                 </Card>
@@ -119,12 +127,17 @@ export default function DashboardEtudiant() {
                       <Typography variant="h6">{c.titre}</Typography>
                       <Chip label="Inscrit" size="small" color="success" />
                     </Box>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      {c.description.length > 100
+                        ? c.description.slice(0, 100) + "..."
+                        : c.description}
+                    </Typography>
                     <Button
                       size="small"
                       variant="contained"
-                      onClick={() => navigate(`/inscription/${c.id}`)}
+                      onClick={() => navigate(`/cours/${c.id}/contenu`)}
                     >
-                      S'inscrire
+                      Commencer
                     </Button>
                   </CardContent>
                 </Card>

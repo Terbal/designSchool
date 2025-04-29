@@ -18,26 +18,32 @@ const ListeEtudiantsParModule = () => {
   const [etudiants, setEtudiants] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [dejaInscrit, setDejaInscrit] = useState(false);
+
   useEffect(() => {
-    const fetchEtudiants = async () => {
+    const fetchCours = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/modules/${id}/etudiants`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setEtudiants(res.data);
-        setLoading(false);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:5000/api/cours/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCours(res.data);
+
+        // Vérifie si l'utilisateur est déjà inscrit à ce cours
+        if (res.data.inscriptions) {
+          const inscrit = res.data.inscriptions.some(
+            (i) => i.etudiant_email === user.email
+          );
+          setDejaInscrit(inscrit);
+        }
       } catch (err) {
-        console.error("Erreur chargement étudiants :", err);
+        console.error(err);
+      } finally {
         setLoading(false);
       }
     };
-    fetchEtudiants();
-  }, [id]);
+    fetchCours();
+  }, [id, user.email]);
 
   const handleAddCours = async () => {
     try {

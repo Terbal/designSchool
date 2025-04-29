@@ -71,4 +71,38 @@ router.post("/", async (req, res) => {
   }
 });
 
+// GET contenu d’un cours
+router.get("/:id/contenu", verifyToken, async (req, res) => {
+  const coursId = req.params.id;
+
+  try {
+    const [coursRows] = await db.query("SELECT * FROM cours WHERE id = ?", [
+      coursId,
+    ]);
+
+    if (coursRows.length === 0) {
+      return res.status(404).json({ message: "Cours introuvable" });
+    }
+
+    const [videos] = await db.query("SELECT * FROM videos WHERE cours_id = ?", [
+      coursId,
+    ]);
+    const [documents] = await db.query(
+      "SELECT * FROM documents WHERE cours_id = ?",
+      [coursId]
+    );
+
+    const contenu = {
+      ...coursRows[0],
+      videos,
+      documents,
+    };
+
+    res.json(contenu);
+  } catch (error) {
+    console.error("Erreur récupération contenu du cours :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
 export default router;

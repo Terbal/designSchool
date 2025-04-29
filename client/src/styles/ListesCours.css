@@ -1,0 +1,56 @@
+.cours-container {
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+.cours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.cours-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.cours-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cours-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.cours-card p {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background-color: #ffffff;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+}
+
+button:hover {
+  opacity: 0.9;
+}

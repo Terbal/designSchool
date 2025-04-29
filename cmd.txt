@@ -1,0 +1,12 @@
+a) Directement via un outil comme phpMyAdmin, MySQL Workbench ou terminal SQL :
+sql
+Copier
+Modifier
+INSERT INTO videos (titre, url, cours_id) VALUES 
+  ('Introduction au design', 'https://youtu.be/video1', 1),
+  ('Typographie de base', 'https://youtu.be/video2', 1);
+
+INSERT INTO documents (nom, url, cours_id) VALUES 
+  ('PDF du cours 1', 'https://drive.google.com/file1', 1),
+  ('Slides Typographie', 'https://drive.google.com/file2', 1);
+Remplace cours_id = 1 par l'ID de ton cours.

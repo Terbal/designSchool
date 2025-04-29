@@ -11,6 +11,8 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 
 const DetailsCours = () => {
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -21,11 +23,22 @@ const DetailsCours = () => {
   useEffect(() => {
     const fetchCours = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/cours/${id}`);
-        setCours(res.data);
-        setLoading(false);
+        const token = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const [coursRes, enrolledRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/cours/${id}`),
+          axios.get(`http://localhost:5000/api/inscription/mes-cours`, {
+            headers,
+          }),
+        ]);
+
+        setCours(coursRes.data);
+        const inscrit = enrolledRes.data.some((c) => c.id === parseInt(id));
+        setIsEnrolled(inscrit);
       } catch (error) {
         console.error("Erreur récupération cours :", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -65,11 +78,12 @@ const DetailsCours = () => {
       </Typography>
 
       <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-        {user?.role === "etudiant" && (
+        {user?.role === "etudiant" && !isEnrolled && (
           <Button variant="contained" onClick={handleInscription}>
             S'inscrire
           </Button>
         )}
+
         <Button variant="outlined" onClick={() => navigate(-1)}>
           Retour
         </Button>
