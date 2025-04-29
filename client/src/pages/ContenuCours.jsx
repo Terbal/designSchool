@@ -17,6 +17,14 @@ const ContenuCours = () => {
   const [contenu, setContenu] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const transformYouTubeUrl = (url) => {
+    if (!url) return "";
+    if (url.includes("youtube.com/watch?v=")) {
+      return url.replace("watch?v=", "embed/");
+    }
+    return url; // sinon, laisse tel quel (utile si c’est un autre type d'URL)
+  };
+
   useEffect(() => {
     const fetchContenu = async () => {
       try {
@@ -63,7 +71,7 @@ const ContenuCours = () => {
             </Typography>
             <Box
               component="iframe"
-              src={video.url}
+              src={transformYouTubeUrl(video.url)}
               width="100%"
               height="360"
               frameBorder="0"
