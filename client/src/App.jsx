@@ -15,6 +15,7 @@ import ListeEtudiantsParModule from "./pages/ListeEtudiantsParModule";
 import MesCours from "./components/MesCours";
 import DetailsCours from "./components/DetailsCour";
 import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la route
+import FormulaireInscription from "./components/FormulaireInscription";
 
 function App() {
   const { user, loading } = useAuth();
@@ -110,6 +111,14 @@ function App() {
           ) : (
             <Navigate to="/" replace />
           )
+        }
+      />
+      <Route
+        path="/inscription/:id"
+        element={
+          <PrivateRoute>
+            <FormulaireInscription />
+          </PrivateRoute>
         }
       />
     </Routes>

@@ -6,6 +6,9 @@ import formateurRoutes from "./routes/formateurRoutes.js";
 import inscriptionRoutes from "./routes/inscriptionRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { verifyToken } from "./middleware/authMiddleware.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 // app.use(cors());
@@ -23,6 +26,8 @@ app.use("/api/formateurs", formateurRoutes);
 // app.use("/api/cours", coursRoutes);
 
 app.use("/api/cours", coursRoutes);
+
+app.use("/api/inscriptions", inscriptionRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

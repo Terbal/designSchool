@@ -14,4 +14,6 @@ router.post("/cours/:id/inscrire", verifyToken, inscrireAuCours);
 // GET /api/inscription/mes-cours
 router.get("/mes-cours", verifyToken, getMesCours);
 
+router.post("/", verifyToken, inscrireEtudiant);
+
 export default router;

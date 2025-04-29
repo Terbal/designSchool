@@ -13,13 +13,22 @@ export const verifyToken = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, "secret123"); // même clé que dans login
-    req.user = decoded; // contient id, email, role
+    // Utilise la clé du .env
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret123");
+    req.user = {
+      id: decoded.id,
+      nom: decoded.nom, // ✅ disponible maintenant
+      email: decoded.email,
+      role: decoded.role,
+    };
+
     next();
   } catch (error) {
     return res.status(401).json({ error: "Token invalide" });
   }
 };
+
+// Vérifie si l'utilisateur est admin
 export const verifyAdmin = (req, res, next) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ message: "Accès refusé" });
@@ -27,6 +36,7 @@ export const verifyAdmin = (req, res, next) => {
   next();
 };
 
+// Vérifie si l'utilisateur a l'un des rôles autorisés
 export function checkRole(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user) {

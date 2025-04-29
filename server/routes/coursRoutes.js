@@ -27,27 +27,26 @@ router.delete("/:id", verifyToken, checkRole("admin"), deleteCours);
 router.put("/:id", verifyToken, checkRole("admin", "formateur"), updateCours);
 
 // Récupérer les détails d'un cours
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const [cours] = await db.query(
-      `
-      SELECT c.*, u.nom AS formateur_nom
-      FROM cours c
-      LEFT JOIN users u ON c.formateur_id = u.id
-      WHERE c.id = ?
-    `,
-      [id]
+    const [rows] = await db.query("SELECT * FROM cours WHERE id = ?", [
+      req.params.id,
+    ]);
+    if (rows.length === 0)
+      return res.status(404).json({ error: "Cours non trouvé" });
+
+    const cours = rows[0];
+
+    const [creneaux] = await db.query(
+      "SELECT * FROM creneaux WHERE cours_id = ?",
+      [cours.id]
     );
+    cours.creneaux = creneaux;
 
-    if (cours.length === 0) {
-      return res.status(404).json({ message: "Cours non trouvé" });
-    }
-
-    res.json(cours[0]);
-  } catch (err) {
-    console.error("Erreur lors de la récupération du cours :", err);
-    res.status(500).json({ message: "Erreur serveur" });
+    res.json(cours);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 

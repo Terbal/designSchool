@@ -90,3 +90,32 @@ export const getEtudiantsParModule = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
+export const getCoursById = async (req, res) => {
+  try {
+    const [coursResult] = await db.execute(`SELECT * FROM cours WHERE id = ?`, [
+      req.params.id,
+    ]);
+
+    if (coursResult.length === 0) {
+      return res.status(404).json({ message: "Cours non trouvé" });
+    }
+
+    const cours = coursResult[0];
+
+    // Jointure : on récupère les créneaux associés
+    const [creneaux] = await db.execute(
+      `SELECT c.id, c.date, c.heure, c.places_disponibles
+   FROM creneaux c
+   WHERE c.cours_id = ?`,
+      [id]
+    );
+
+    cours.creneaux = creneaux;
+
+    res.json(cours);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du cours :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

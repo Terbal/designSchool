@@ -51,35 +51,20 @@ export const getMesCours = async (req, res) => {
 
 // Deuxième méthode d'inscription (par body au lieu de params)
 export const inscrireEtudiant = async (req, res) => {
-  const { coursId } = req.body; // <<< harmonisé ici aussi
-  const userId = req.user.id;
-
-  if (!coursId) {
-    return res.status(400).json({ message: "ID du cours manquant." });
-  }
-
   try {
-    // Vérifier s'il est déjà inscrit
-    const [check] = await db.query(
-      "SELECT * FROM inscription WHERE etudiant_id = ? AND cours_id = ?",
-      [userId, coursId]
+    const { cours_id, creneau_id } = req.body;
+    const { id: etudiant_id, nom, email } = req.user; // Depuis le token
+
+    const [rows] = await db.execute(
+      `INSERT INTO inscription 
+      (cours_id, creneau_id, etudiant_id, etudiant_nom, etudiant_email)
+      VALUES (?, ?, ?, ?, ?)`,
+      [cours_id, creneau_id, etudiant_id, nom, email]
     );
 
-    if (check.length > 0) {
-      return res
-        .status(400)
-        .json({ message: "Vous êtes déjà inscrit à ce cours." });
-    }
-
-    // Inscrire
-    await db.query(
-      "INSERT INTO inscription (etudiant_id, cours_id) VALUES (?, ?)",
-      [userId, coursId]
-    );
-
-    res.status(201).json({ message: "Inscription réussie !" });
-  } catch (err) {
-    console.error("Erreur insertion inscription:", err);
-    res.status(500).json({ message: "Erreur serveur." });
+    res.status(201).json({ message: "Inscription réussie" });
+  } catch (error) {
+    console.error("Erreur d'inscription :", error);
+    res.status(500).json({ message: "Erreur lors de l'inscription" });
   }
 };

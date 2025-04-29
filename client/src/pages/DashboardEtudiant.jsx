@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
+
 import {
   Container,
   Typography,
@@ -22,6 +24,7 @@ export default function DashboardEtudiant() {
   const [available, setAvailable] = useState([]);
   const [enrolled, setEnrolled] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -118,11 +121,10 @@ export default function DashboardEtudiant() {
                     </Box>
                     <Button
                       size="small"
-                      sx={{ mt: 2 }}
                       variant="contained"
-                      onClick={() => (window.location.href = `/cours/${c.id}`)}
+                      onClick={() => navigate(`/inscription/${c.id}`)}
                     >
-                      Accéder
+                      S'inscrire
                     </Button>
                   </CardContent>
                 </Card>
