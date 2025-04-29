@@ -31,24 +31,21 @@ export const inscrireAuCours = async (req, res) => {
 };
 
 // Liste des cours auxquels l'étudiant est inscrit
-export const getMesCours = async (req, res) => {
-  const userId = req.user.id;
 
+export const getMesCours = async (req, res) => {
+  const etudiantId = req.user.id;
   try {
     const [rows] = await db.query(
-      `
-      SELECT c.id, c.titre, c.description
-      FROM cours c
-      JOIN inscription i ON c.id = i.cours_id
-      WHERE i.etudiant_id = ?
-      `,
-      [userId]
+      `SELECT c.*
+       FROM inscription i
+       JOIN cours c ON i.cours_id = c.id
+       WHERE i.etudiant_id = ?`,
+      [etudiantId]
     );
-
-    res.json(rows);
-  } catch (error) {
-    console.error("Erreur récupération cours :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error("Erreur récupération mes-cours :", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 

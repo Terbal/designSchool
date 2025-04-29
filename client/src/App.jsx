@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import DashboardEtudiant from "./pages/DashboardEtudiant";
 import PrivateRoute from "./components/PrivateRoute";
 import Profil from "./pages/Profil";
 import AdminUsers from "./pages/AdminUsers";
@@ -99,6 +100,18 @@ function App() {
       />
       <Route path="/cours/:id" element={<DetailsCours />} />
       <Route path="/mes-cours" element={<MesCours />} />
+      <Route
+        path="/dashboard-etudiant"
+        element={
+          user?.role === "etudiant" ? (
+            <PrivateRoute>
+              <DashboardEtudiant />
+            </PrivateRoute>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
     </Routes>
   );
 }

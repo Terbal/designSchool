@@ -1,51 +1,24 @@
 // src/pages/Dashboard.jsx
-import { useAuth } from "../contexts/AuthContext"; // ← on importe le hook
-import Navbar from "../components/Navbar";
-import { Typography, Container, Box, Button } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-const Dashboard = () => {
-  const { user } = useAuth(); // ← on récupère user
+export default function Dashboard() {
+  const { user } = useAuth();
 
-  return (
-    <>
-      <Navbar />
-      <Container>
-        <Typography variant="h4" align="center" mt={4}>
-          Bienvenue sur le tableau de bord de designSchool 🎓
-        </Typography>
+  if (!user) {
+    // non connecté
+    return <Navigate to="/login" replace />;
+  }
 
-        {/* Bloc d’informations utilisateur */}
-        <Box mt={4}>
-          <Typography variant="h6">Bienvenue, {user.nom} !</Typography>
-          {/* <Typography variant="body1">Ton rôle est : {user.role}</Typography> */}
-
-          {/* Affichage conditionnel selon le rôle */}
-          {user.role === "admin" && (
-            <>
-              <Typography variant="body2" gutterBottom>
-                👑 Vous êtes un administrateur
-              </Typography>
-              <Button
-                component={Link}
-                to="/admin/users"
-                variant="contained"
-                sx={{ mt: 2 }}
-              >
-                Gérer les utilisateurs
-              </Button>
-            </>
-          )}
-          {user.role === "formateur" && (
-            <Typography variant="body2">📚 Vous êtes un formateur</Typography>
-          )}
-          {user.role === "etudiant" && (
-            <Typography variant="body2">🎓 Vous êtes un étudiant</Typography>
-          )}
-        </Box>
-      </Container>
-    </>
-  );
-};
-
-export default Dashboard;
+  // redirections par rôle
+  switch (user.role) {
+    case "etudiant":
+      return <Navigate to="/dashboard-etudiant" replace />;
+    case "formateur":
+      return <Navigate to="/dashboard-formateur" replace />;
+    case "admin":
+      return <Navigate to="/admin/users" replace />;
+    default:
+      return <Navigate to="/" replace />;
+  }
+}

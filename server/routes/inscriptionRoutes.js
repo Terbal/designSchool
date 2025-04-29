@@ -8,12 +8,10 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Route POST pour s'inscrire à un module
-router.post("/", verifyToken, inscrireEtudiant);
+// POST /api/inscription/cours/:id/inscrire
+router.post("/cours/:id/inscrire", verifyToken, inscrireAuCours);
 
-// Route pour inscrire un utilisateur à un cours
-router.post("/cours/:coursId/inscrire", verifyToken, inscrireAuCours);
-
+// GET /api/inscription/mes-cours
 router.get("/mes-cours", verifyToken, getMesCours);
 
 export default router;
