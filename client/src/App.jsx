@@ -17,6 +17,7 @@ import DetailsCours from "./components/DetailsCour";
 import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la route
 import FormulaireInscription from "./components/FormulaireInscription";
 import ContenuCours from "./pages/ContenuCours";
+import ChatClasse from "./pages/ChatClasse";
 
 function App() {
   const { user, loading } = useAuth();
@@ -122,6 +123,8 @@ function App() {
           </PrivateRoute>
         }
       />
+
+      <Route path="/chat" element={<ChatClasse />} />
 
       <Route path="/cours/:id/contenu" element={<ContenuCours />} />
     </Routes>

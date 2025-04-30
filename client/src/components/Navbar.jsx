@@ -14,6 +14,8 @@ import {
   Slide,
   useScrollTrigger,
 } from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
+
 import { motion } from "framer-motion"; // <== NOUVEAU
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
@@ -121,6 +123,7 @@ const Navbar = () => {
                   <>
                     {navButton("/dashboard", "Dashboard", 0.1)}
                     {navButton("/profil", "Mon Profil", 0.2)}
+                    {navButton("/chat", "Chat de Classe", 0.25)}
                     {navButtonLogout("Déconnexion", 0.3)}
                   </>
                 ) : (
@@ -165,6 +168,7 @@ const Navbar = () => {
                 {drawerLink("/", <HomeIcon />, "Accueil")}
                 {drawerLink("/dashboard", <DashboardIcon />, "Dashboard")}
                 {drawerLink("/profil", <PersonIcon />, "Mon Profil")}
+                {drawerLink("/chat", <ChatIcon />, "Chat de Classe")}
                 {drawerButton(logout, <ExitToAppIcon />, "Déconnexion")}
               </>
             ) : (
