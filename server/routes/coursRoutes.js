@@ -105,4 +105,33 @@ router.get("/:id/contenu", verifyToken, async (req, res) => {
   }
 });
 
+// Route pour lister formateur + étudiants d’un cours
+router.get("/:coursId/utilisateurs", async (req, res) => {
+  const { coursId } = req.params;
+  try {
+    // le formateur du cours
+    const [formateurRows] = await db.query(
+      `SELECT u.id, u.nom, u.role
+         FROM cours c
+         JOIN users u ON u.id = c.formateur_id
+        WHERE c.id = ?`,
+      [coursId]
+    );
+    // les étudiants inscrits
+    const [etudiantRows] = await db.query(
+      `SELECT u.id, u.nom, u.role
+         FROM inscription i
+         JOIN users u ON u.id = i.etudiant_id
+        WHERE i.cours_id = ?`,
+      [coursId]
+    );
+    res.json([...formateurRows, ...etudiantRows]);
+  } catch (err) {
+    console.error("Erreur GET /api/cours/:coursId/utilisateurs", err);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors du fetch des utilisateurs" });
+  }
+});
+
 export default router;

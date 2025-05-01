@@ -2,27 +2,31 @@
 import db from "../db.js";
 
 const chatSocket = (io) => {
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     console.log("Un utilisateur est connecté au chat");
 
-    // 1. Envoyer les anciens messages à l'utilisateur connecté
-    try {
-      const [rows] = await db.query("SELECT * FROM messages ORDER BY time ASC");
-      rows.forEach((msg) => socket.emit("message", msg));
-    } catch (err) {
-      console.error("Erreur récupération messages :", err);
-    }
+    // 1) Lorsqu'un client rejoint une conversation, on le place dans une "room"
+    socket.on("joinConversation", (conversationId) => {
+      socket.join(conversationId);
+    });
 
-    // 2. Lorsqu’un utilisateur envoie un message
-    socket.on("message", async (data) => {
-      const { sender, text, time } = data;
-
+    // 2) Lorsqu’un client émet "sendMessage"
+    socket.on("sendMessage", async (data) => {
+      const { conversationId, senderId, text } = data;
       try {
-        await db.query(
-          "INSERT INTO messages (sender, text, time) VALUES (?, ?, ?)",
-          [sender, text, time]
+        // Enregistre en base
+        const [result] = await db.query(
+          "INSERT INTO messages (conversation_id, sender, text) VALUES (?, ?, ?)",
+          [conversationId, senderId, text]
         );
-        io.emit("message", data); // renvoyer à tous
+        const saved = {
+          id: result.insertId,
+          conversationId,
+          senderId,
+          text,
+        };
+        // Émet à tous les clients de la room
+        io.to(conversationId).emit("newMessage", saved);
       } catch (err) {
         console.error("Erreur insertion message :", err);
       }

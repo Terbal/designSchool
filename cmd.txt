@@ -10,3 +10,109 @@ INSERT INTO documents (nom, url, cours_id) VALUES
   ('PDF du cours 1', 'https://drive.google.com/file1', 1),
   ('Slides Typographie', 'https://drive.google.com/file2', 1);
 Remplace cours_id = 1 par l'ID de ton cours.
+
+
+
+
+==============================================================
+
+
+PROMPT
+
+j'ai ça dans routes/users.js => router.get("/cours/:coursId/utilisateurs", async (req, res) => { 
+  const { coursId } = req.params;
+
+  try {
+    const [formateur] = await db.query(
+      SELECT u.id, u.nom, u.role FROM cours c
+       JOIN users u ON u.id = c.formateur_id
+       WHERE c.id = ?,
+      [coursId]
+    );
+
+    const [etudiants] = await db.query(
+      SELECT u.id, u.nom, u.role
+       FROM inscriptions i
+       JOIN users u ON u.id = i.user_id
+       WHERE i.cours_id = ?,
+      [coursId]
+    );
+
+    const users = [...formateur, ...etudiants];
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});                voila comment c'est dans la BDD =>      CREATE TABLE users (    id int(11) NOT NULL AUTO_INCREMENT,    nom varchar(100) DEFAULT NULL,    email varchar(100) DEFAULT NULL,    mot_de_passe varchar(255) DEFAULT NULL,    role enum('admin','etudiant','formateur') DEFAULT 'etudiant',    created_at timestamp NOT NULL DEFAULT current_timestamp(),    PRIMARY KEY (id),    UNIQUE KEY email (email)  ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci                                   CREATE TABLE cours (
+   id int(11) NOT NULL AUTO_INCREMENT,
+   titre varchar(255) NOT NULL,
+   description text DEFAULT NULL,
+   formateur_id int(11) DEFAULT NULL,
+   date_creation datetime DEFAULT current_timestamp(),
+   duration int(11) DEFAULT NULL,
+   prix decimal(10,2) DEFAULT NULL,
+   PRIMARY KEY (id),
+   KEY formateur_id (formateur_id),
+   CONSTRAINT cours_ibfk_1 FOREIGN KEY (formateur_id) REFERENCES users (id)
+ ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+et voici index.js => import express from "express";
+import cors from "cors";
+import usersRoutes from "./routes/users.js";
+import coursRoutes from "./routes/coursRoutes.js";
+import formateurRoutes from "./routes/formateurRoutes.js";
+import inscriptionRoutes from "./routes/inscriptionRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import { verifyToken } from "./middleware/authMiddleware.js";
+import dotenv from "dotenv";
+import { Server } from "socket.io";
+import http from "http";
+import chatSocket from "./sockets/chatSocket.js";
+import conversationRoutes from "./routes/conversations.js";
+
+dotenv.config();
+
+const app = express();
+// app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.json());
+
+app.use("/api/conversations", conversationRoutes);
+
+app.use("/api/inscription", inscriptionRoutes);
+
+app.use("/api/users", usersRoutes);
+
+app.use("/api/admin", adminRoutes);
+
+app.use("/api/formateurs", formateurRoutes);
+
+// app.use("/api/cours", coursRoutes);
+
+app.use("/api/cours", coursRoutes);
+
+app.use("/api/inscriptions", inscriptionRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+// Créer un serveur HTTP avec express
+const server = http.createServer(app);
+
+// Créer une instance socket.io attachée au serveur
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // ton frontend React
+    methods: ["GET", "POST"],
+  },
+});
+
+// Gestion des connexions socket.io
+
+chatSocket(io);
+
+// Démarrer le serveur
+server.listen(PORT, () => {
+  console.log(Serveur démarré sur le port ${PORT});
+});

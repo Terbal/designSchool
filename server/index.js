@@ -10,6 +10,8 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import http from "http";
 import chatSocket from "./sockets/chatSocket.js";
+import conversationRoutes from "./routes/conversations.js";
+import messagesRoutes from "./routes/messages.js";
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 
+app.use("/api/conversations", conversationRoutes);
+
 app.use("/api/inscription", inscriptionRoutes);
 
 app.use("/api/users", usersRoutes);
@@ -25,6 +29,8 @@ app.use("/api/users", usersRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/api/formateurs", formateurRoutes);
+
+app.use("/api/messages", messagesRoutes);
 
 // app.use("/api/cours", coursRoutes);
 

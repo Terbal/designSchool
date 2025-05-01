@@ -18,6 +18,7 @@ import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la r
 import FormulaireInscription from "./components/FormulaireInscription";
 import ContenuCours from "./pages/ContenuCours";
 import ChatClasse from "./pages/ChatClasse";
+import Messagerie from "./pages/Messagerie";
 
 function App() {
   const { user, loading } = useAuth();
@@ -39,17 +40,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
       <Route
         path="/login"
         element={user ? <Navigate to="/dashboard" replace /> : <Login />}
       />
-
       <Route
         path="/signup"
         element={user ? <Navigate to="/dashboard" replace /> : <Signup />}
       />
-
       <Route
         path="/dashboard"
         element={
@@ -58,9 +56,7 @@ function App() {
           </PrivateRoute>
         }
       />
-
       <Route path="*" element={<Navigate to="/" />} />
-
       <Route
         path="/profil"
         element={
@@ -69,7 +65,6 @@ function App() {
           </PrivateRoute>
         }
       />
-
       <Route
         path="/admin/users"
         element={
@@ -82,7 +77,6 @@ function App() {
           )
         }
       />
-
       <Route
         path="/ajout-cours"
         element={
@@ -95,7 +89,6 @@ function App() {
           )
         }
       />
-
       <Route path="/cours" element={<ListeCours />} />
       <Route
         path="/modules/:id/etudiants"
@@ -123,9 +116,23 @@ function App() {
           </PrivateRoute>
         }
       />
-
-      <Route path="/chat" element={<ChatClasse />} />
-
+      ;
+      <Route
+        path="/messagerie"
+        element={
+          <PrivateRoute>
+            <Messagerie />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/cours/:coursId/messagerie"
+        element={
+          <PrivateRoute>
+            <Messagerie />
+          </PrivateRoute>
+        }
+      />
       <Route path="/cours/:id/contenu" element={<ContenuCours />} />
     </Routes>
   );
