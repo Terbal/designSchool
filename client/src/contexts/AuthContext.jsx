@@ -11,7 +11,13 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
     const userInfo = localStorage.getItem("user");
     if (token && userInfo) {
-      setUser(JSON.parse(userInfo));
+      try {
+        setUser(JSON.parse(userInfo));
+      } catch (err) {
+        console.error("Erreur de parsing userInfo:", err);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
     setLoading(false);
   }, []);
@@ -30,7 +36,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

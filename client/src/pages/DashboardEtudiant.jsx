@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-
+import { School, Book, Assignment } from "@mui/icons-material";
 import {
   Container,
   Typography,
@@ -13,12 +13,15 @@ import {
   Grid,
   Card,
   CardContent,
+  CardActions,
   Button,
   CircularProgress,
   Chip,
+  useTheme,
 } from "@mui/material";
 
 export default function DashboardEtudiant() {
+  const theme = useTheme();
   const { user } = useAuth();
   const [tab, setTab] = useState(0);
   const [available, setAvailable] = useState([]);
@@ -55,95 +58,139 @@ export default function DashboardEtudiant() {
     );
   }
 
+  const truncate = (text, max) =>
+    text.length > max ? text.substring(0, max) + "..." : text;
+
   return (
     <>
       <Navbar />
-      <Container sx={{ mt: 4 }}>
-        <Typography variant="h4">Bienvenue, {user.nom} !</Typography>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ my: 3 }}>
-          <Tab label="Cours disponibles" />
-          <Tab label="Mes cours" />
+      <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          sx={{
+            mb: 4,
+            pt: 5,
+            "& .MuiTabs-indicator": {
+              height: 4,
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Tab label="Cours disponibles" icon={<Book />} iconPosition="start" />
+          <Tab label="Mes cours" icon={<Assignment />} iconPosition="start" />
         </Tabs>
 
-        {tab === 0 && (
-          <Grid container spacing={2}>
-            {available.map((c) => (
-              <Grid item xs={12} sm={6} md={4} key={c.id}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6">{c.titre}</Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      {c.description.length > 100
-                        ? c.description.slice(0, 100) + "..."
-                        : c.description}
+        <Box sx={{ mb: 4, textAlign: { xs: "center", md: "left" } }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+            Bienvenue, {user.nom}
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            {tab === 0
+              ? "Explorez notre catalogue de cours"
+              : "Vos cours en cours"}
+          </Typography>
+        </Box>
+
+        <Grid container spacing={3} alignItems="stretch">
+          {(tab === 0 ? available : enrolled).map((c) => (
+            <Grid item xs={12} sm={6} md={4} key={c.id}>
+              <Card
+                elevation={2}
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: 2,
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: 6,
+                  },
+                  maxWidth: 360,
+                  width: "100%",
+                  mx: "auto",
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <School sx={{ mr: 1.5, color: "primary.main" }} />
+                    <Typography variant="h6" component="div">
+                      {c.titre}
                     </Typography>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      gap={1}
-                      sx={{ mt: 2 }}
-                    >
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() =>
-                          (window.location.href = `/cours/${c.id}`)
-                        }
-                      >
-                        Voir plus
-                      </Button>
+                  </Box>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    {truncate(c.description, 100)}
+                  </Typography>
+                </CardContent>
+
+                <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
+                  {tab === 0 ? (
+                    <>
                       {enrolled.some((e) => e.id === c.id) ? (
                         <Chip
                           label="Déjà inscrit"
-                          color="primary"
+                          color="success"
                           size="small"
+                          sx={{ borderRadius: 1 }}
                         />
                       ) : (
                         <Button
-                          size="small"
                           variant="contained"
-                          onClick={() =>
-                            (window.location.href = `/inscription/${c.id}`)
-                          }
+                          size="small"
+                          onClick={() => navigate(`/inscription/${c.id}`)}
+                          sx={{ borderRadius: 1 }}
                         >
                           S'inscrire
                         </Button>
                       )}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                      <Button
+                        size="small"
+                        onClick={() => navigate(`/cours/${c.id}`)}
+                        sx={{ color: "primary.main" }}
+                      >
+                        Voir détails
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<School />}
+                      onClick={() => navigate(`/cours/${c.id}/contenu`)}
+                      sx={{ borderRadius: 1 }}
+                    >
+                      Accéder au cours
+                    </Button>
+                  )}
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {tab === 0 && available.length === 0 && (
+          <Box sx={{ textAlign: "center", p: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              Aucun cours disponible pour le moment
+            </Typography>
+          </Box>
         )}
 
-        {tab === 1 && (
-          <Grid container spacing={2}>
-            {enrolled.map((c) => (
-              <Grid item xs={12} sm={6} md={4} key={c.id}>
-                <Card>
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="h6">{c.titre}</Typography>
-                      <Chip label="Inscrit" size="small" color="success" />
-                    </Box>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      {c.description.length > 100
-                        ? c.description.slice(0, 100) + "..."
-                        : c.description}
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => navigate(`/cours/${c.id}/contenu`)}
-                    >
-                      Commencer
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+        {tab === 1 && enrolled.length === 0 && (
+          <Box sx={{ textAlign: "center", p: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              Vous n'êtes inscrit à aucun cours
+            </Typography>
+            <Button variant="outlined" sx={{ mt: 2 }} onClick={() => setTab(0)}>
+              Parcourir les cours
+            </Button>
+          </Box>
         )}
       </Container>
     </>

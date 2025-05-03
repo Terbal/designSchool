@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import {
   AppBar,
   Toolbar,
@@ -13,10 +14,8 @@ import {
   useTheme,
   Slide,
   useScrollTrigger,
+  Divider,
 } from "@mui/material";
-import ChatIcon from "@mui/icons-material/Chat";
-
-import { motion } from "framer-motion"; // <== NOUVEAU
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -24,25 +23,20 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+import ChatIcon from "@mui/icons-material/Chat";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import Messagerie from "../pages/Messagerie";
+import { motion } from "framer-motion";
 
 const Navbar = () => {
+  const { user, logout, loading } = useAuth();
   const [scrollProgress, setScrollProgress] = useState(0);
-  const { user, logout } = useAuth();
-  const location = useLocation();
-  const theme = useTheme();
-  const trigger = useScrollTrigger({ threshold: 100 });
-
-  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  const toggleDrawer = (state) => () => {
-    setOpen(state);
-  };
-
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const location = useLocation();
+  const trigger = useScrollTrigger({ threshold: 100 });
   const isHomePage = location.pathname === "/";
 
   useEffect(() => {
@@ -50,19 +44,21 @@ const Navbar = () => {
       const progress =
         (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
         100;
-      setScrolled(window.scrollY > 50);
       setScrollProgress(progress);
+      setScrolled(window.scrollY > 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const toggleDrawer = (state) => () => setOpen(state);
+
+  if (loading) return null; // ✅ évite le flash avant que l'auth soit prête
 
   return (
     <>
       <Slide appear={false} direction="down" in={!trigger}>
         <div>
-          {/* ProgressBar */}
           <Box
             sx={{
               position: "fixed",
@@ -75,11 +71,9 @@ const Navbar = () => {
               transition: "width 0.2s ease-out",
             }}
           />
-
-          {/* NAVBAR */}
           <AppBar
             position="fixed"
-            elevation={0}
+            elevation={scrolled ? 4 : 0}
             sx={{
               background: isHomePage
                 ? scrolled
@@ -90,53 +84,51 @@ const Navbar = () => {
               backdropFilter: isHomePage && !scrolled ? "blur(10px)" : "none",
               transition: "all 0.4s ease",
               height: scrolled ? 64 : 80,
-              display: "flex",
               justifyContent: "center",
-              boxShadow: scrolled
-                ? `0 2px ${Math.min(scrolled * 0.1, 8)}px rgba(0,0,0,0.3)`
-                : "none",
             }}
           >
-            <Toolbar>
-              {/* LOGO - avec Motion (classique) */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                style={{ flexGrow: 1 }}
-              >
+            <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+              {/* Logo + Slogan */}
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography
                   variant="h6"
-                  sx={{
-                    fontFamily: "Poppins",
-                    fontWeight: 600,
-                    color: "white",
-                    transition: "color 0.3s ease",
-                  }}
+                  sx={{ fontWeight: 600, fontFamily: "Poppins" }}
                 >
                   école de design
                 </Typography>
-              </motion.div>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: 12,
+                    fontWeight: 300,
+                    opacity: 0.8,
+                    marginTop: "-4px",
+                    fontStyle: "italic",
+                  }}
+                >
+                  Développez votre créativité.
+                </Typography>
+              </Box>
 
-              {/* BOUTONS Desktop - avec whileInView */}
+              {/* Boutons Desktop */}
               <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
                 {user ? (
                   <>
-                    {navButton("/dashboard", "Dashboard", 0.1)}
-                    {navButton("/profil", "Mon Profil", 0.2)}
-                    {navButton("/messagerie", "Messagerie", 0.25)}
-
-                    {navButtonLogout("Déconnexion", 0.3)}
+                    {navButton("/", "Accueil")}
+                    {navButton("/dashboard", "Dashboard")}
+                    {navButton("/profil", "Profil")}
+                    {navButton("/messagerie", "Messagerie")}
+                    {navButtonLogout("Déconnexion")}
                   </>
                 ) : (
                   <>
-                    {navButton("/login", "Connexion", 0.1)}
-                    {navButton("/signup", "Inscription", 0.2)}
+                    {navButton("/login", "Connexion")}
+                    {navButton("/signup", "Inscription")}
                   </>
                 )}
               </Box>
 
-              {/* Menu Burger Mobile */}
+              {/* Menu Mobile */}
               <Box sx={{ display: { xs: "block", md: "none" } }}>
                 <IconButton
                   onClick={toggleDrawer(true)}
@@ -147,18 +139,11 @@ const Navbar = () => {
               </Box>
             </Toolbar>
           </AppBar>
-
-          <Box />
         </div>
       </Slide>
 
-      {/* Drawer Menu Mobile */}
-      <Drawer
-        anchor="right"
-        open={open}
-        onClose={toggleDrawer(false)}
-        transitionDuration={{ enter: 400, exit: 300 }}
-      >
+      {/* Drawer Mobile */}
+      <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         <Box
           sx={{ width: 250 }}
           role="presentation"
@@ -169,9 +154,9 @@ const Navbar = () => {
               <>
                 {drawerLink("/", <HomeIcon />, "Accueil")}
                 {drawerLink("/dashboard", <DashboardIcon />, "Dashboard")}
-                {drawerLink("/profil", <PersonIcon />, "Mon Profil")}
+                {drawerLink("/profil", <PersonIcon />, "Profil")}
                 {drawerLink("/messagerie", <ChatIcon />, "Messagerie")}
-
+                <Divider sx={{ my: 1 }} />
                 {drawerButton(logout, <ExitToAppIcon />, "Déconnexion")}
               </>
             ) : (
@@ -188,55 +173,45 @@ const Navbar = () => {
   );
 };
 
-// --- Composants auxiliaires mis à jour ---
-
-const navButton = (to, label, delay = 0) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    viewport={{ once: true }}
+// Composants auxiliaires
+const navButton = (to, label) => (
+  <Button
+    component={Link}
+    to={to}
+    sx={{
+      color: "white",
+      fontWeight: 600,
+      px: 2,
+      "&:hover": {
+        backgroundColor: "rgba(255,255,255,0.1)",
+        transform: "scale(1.05)",
+      },
+      transition: "all 0.3s ease",
+    }}
   >
-    <Button
-      component={Link}
-      to={to}
-      sx={{
-        color: "white",
-        fontWeight: 600,
-        "&:hover": {
-          color: "#BBDEFB",
-          transform: "scale(1.05)",
-        },
-        transition: "all 0.3s ease",
-      }}
-    >
-      {label}
-    </Button>
-  </motion.div>
+    {label}
+  </Button>
 );
 
-const navButtonLogout = (label, delay = 0) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    viewport={{ once: true }}
+const navButtonLogout = (label) => (
+  <Button
+    onClick={() => {
+      localStorage.clear();
+      window.location.reload();
+    }}
+    sx={{
+      color: "white",
+      fontWeight: 600,
+      px: 2,
+      "&:hover": {
+        backgroundColor: "#FF8A80",
+        transform: "scale(1.05)",
+      },
+      transition: "all 0.3s ease",
+    }}
   >
-    <Button
-      onClick={() => window.location.reload()}
-      sx={{
-        color: "white",
-        fontWeight: 600,
-        "&:hover": {
-          color: "#FF8A80",
-          transform: "scale(1.05)",
-        },
-        transition: "all 0.3s ease",
-      }}
-    >
-      {label}
-    </Button>
-  </motion.div>
+    {label}
+  </Button>
 );
 
 const drawerLink = (to, icon, label) => (

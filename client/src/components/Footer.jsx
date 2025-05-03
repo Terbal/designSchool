@@ -4,69 +4,79 @@ import {
   Typography,
   Grid,
   Link as MuiLink,
+  Divider,
   useTheme,
 } from "@mui/material";
 
 const Footer = () => {
-  const theme = useTheme(); // 🔥 accès au thème
+  const theme = useTheme();
 
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: theme.palette.primary.main, // couleur du thème
+        backgroundColor: theme.palette.grey[900],
         color: theme.palette.common.white,
-        py: 4,
-        mt: 8,
+        pt: 6,
+        pb: 4,
+        mt: 10,
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6" fontWeight={600}>
+          {/* Branding */}
+          <Grid item xs={12} md={6}>
+            <Typography variant="h5" fontWeight={600} gutterBottom>
               designSchool
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Des formations innovantes pour apprendre à s’exprimer avec
-              confiance et impact.
+            <Typography variant="body2" sx={{ opacity: 0.8, maxWidth: 400 }}>
+              Développez votre potentiel créatif grâce à des formations
+              pratiques, inspirantes et accessibles. Une pédagogie moderne pour
+              une nouvelle génération de créateurs.
             </Typography>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6" fontWeight={600}>
+          {/* Liens utiles */}
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
               Liens utiles
             </Typography>
-            <Box sx={{ mt: 1 }}>
-              <MuiLink
-                href="/login"
-                color="inherit"
-                underline="hover"
-                sx={{ display: "block", mt: 0.5 }}
-              >
-                Connexion
-              </MuiLink>
-              <MuiLink
-                href="/signup"
-                color="inherit"
-                underline="hover"
-                sx={{ display: "block", mt: 0.5 }}
-              >
-                Inscription
-              </MuiLink>
-              <MuiLink
-                href="/dashboard"
-                color="inherit"
-                underline="hover"
-                sx={{ display: "block", mt: 0.5 }}
-              >
-                Dashboard
-              </MuiLink>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              {[
+                { label: "Connexion", href: "/login" },
+                { label: "Inscription", href: "/signup" },
+                { label: "Dashboard", href: "/dashboard" },
+              ].map((link, i) => (
+                <MuiLink
+                  key={i}
+                  href={link.href}
+                  color="inherit"
+                  underline="hover"
+                  sx={{
+                    mt: 0.8,
+                    fontWeight: 400,
+                    fontSize: "0.95rem",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      pl: 1,
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
+                >
+                  {link.label}
+                </MuiLink>
+              ))}
             </Box>
           </Grid>
         </Grid>
 
-        <Box mt={4} textAlign="center">
-          <Typography variant="body2">
+        <Divider sx={{ my: 4, backgroundColor: "rgba(255,255,255,0.1)" }} />
+
+        <Box textAlign="center">
+          <Typography
+            variant="body2"
+            sx={{ fontSize: "0.85rem", opacity: 0.7 }}
+          >
             © {new Date().getFullYear()} designSchool. Tous droits réservés.
           </Typography>
         </Box>

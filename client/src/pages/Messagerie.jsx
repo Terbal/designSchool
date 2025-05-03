@@ -30,6 +30,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import io from "socket.io-client";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import Navbar from "../components/Navbar";
 
 const API_BASE_URL = "http://localhost:5000";
 const socket = io(API_BASE_URL);
@@ -171,6 +172,7 @@ const Messagerie = () => {
 
   return (
     <Box sx={{ display: "flex", height: "100vh", position: "relative" }}>
+      <Navbar />
       {(!isMobileOrTablet || !showChat) && (
         <Box
           sx={{
@@ -178,6 +180,7 @@ const Messagerie = () => {
             bgcolor: "#ffffff",
             borderRight: "1px solid #ddd",
             p: 2,
+            pt: 11,
             display: "flex",
             flexDirection: "column",
             position: "relative",
@@ -250,7 +253,10 @@ const Messagerie = () => {
           }}
         >
           {isMobileOrTablet && (
-            <IconButton onClick={() => setShowChat(false)} sx={{ mb: 1 }}>
+            <IconButton
+              onClick={() => setShowChat(false)}
+              sx={{ mb: 1, pt: 5 }}
+            >
               ←
             </IconButton>
           )}
@@ -263,6 +269,7 @@ const Messagerie = () => {
           )} */}
 
           {/* Chat header */}
+
           {currentConv && (
             <Typography
               variant="h6"
