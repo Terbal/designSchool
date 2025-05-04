@@ -22,6 +22,9 @@ import {
   ListItemButton,
   useTheme,
   useMediaQuery,
+  Badge,
+  Chip,
+  Divider,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import AddIcon from "@mui/icons-material/Add";
@@ -86,6 +89,17 @@ const Messagerie = () => {
     );
   }, [search, conversations]);
 
+  // Ajoutez cette fonction au début du composant
+  const formatMessageTime = (timestamp) => {
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    if (isNaN(date)) return "--:--";
+
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   // Fetch messages + join room
   useEffect(() => {
     if (currentConv) {
@@ -100,7 +114,14 @@ const Messagerie = () => {
   // New message listener
   useEffect(() => {
     socket.on("newMessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...msg,
+          // Conversion sécurisée de la date
+          createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
+        },
+      ]);
     });
     return () => socket.off("newMessage");
   }, []);
@@ -169,42 +190,45 @@ const Messagerie = () => {
   // Contrôle de l'affichage mobile
   const showSidebar = !isMobile || (isMobile && !currentConv);
   // const showChat = !isMobile || (isMobile && !!currentConv);
-
   return (
-    <Box sx={{ display: "flex", height: "100vh", position: "relative" }}>
+    <Box
+      sx={{ display: "flex", height: "100vh", bgcolor: "background.default" }}
+    >
       <Navbar />
+
+      {/* Conversation List */}
       {(!isMobileOrTablet || !showChat) && (
         <Box
           sx={{
-            width: isMobileOrTablet ? "100%" : "30%",
-            bgcolor: "#ffffff",
-            borderRight: "1px solid #ddd",
-            p: 2,
-            pt: 11,
+            width: isMobileOrTablet ? "100%" : 360,
+            borderRight: `1px solid ${theme.palette.divider}`,
+            height: "100vh",
+            pt: 8,
             display: "flex",
             flexDirection: "column",
-            position: "relative",
           }}
         >
-          <TextField
-            placeholder="Recherche..."
-            variant="outlined"
-            size="small"
-            fullWidth
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ mb: 2 }}
-          />
-          <List>
+          <Box sx={{ p: 2, bgcolor: "background.paper" }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Rechercher une conversation..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 4 },
+              }}
+            />
+          </Box>
+
+          <List sx={{ flex: 1, overflow: "auto", p: 1 }}>
             {filteredConvs.map((conv) => (
-              <ListItem disablePadding key={conv.id}>
+              <ListItem key={conv.id} disablePadding>
                 <ListItemButton
                   selected={currentConv?.id === conv.id}
                   onClick={() => {
@@ -213,28 +237,56 @@ const Messagerie = () => {
                   }}
                   sx={{
                     borderRadius: 2,
-                    mb: 1,
-                    "&.Mui-selected": { bgcolor: "#e3f2fd" },
+                    mb: 0.5,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                      "&:hover": { bgcolor: "action.selected" },
+                    },
                   }}
                 >
                   <ListItemAvatar>
-                    <Avatar>{conv.name.charAt(0)}</Avatar>
+                    <Badge
+                      variant="dot"
+                      color="success"
+                      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    >
+                      <Avatar sx={{ bgcolor: "primary.main" }}>
+                        {conv.name.charAt(0)}
+                      </Avatar>
+                    </Badge>
                   </ListItemAvatar>
-                  <ListItemText primary={conv.name} secondary={conv.type} />
+                  <ListItemText
+                    primary={conv.name}
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                    secondary={
+                      <Chip
+                        label={conv.type === "private" ? "Privé" : "Groupe"}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: "0.7rem",
+                          bgcolor:
+                            conv.type === "private"
+                              ? "primary.light"
+                              : "secondary.light",
+                        }}
+                      />
+                    }
+                  />
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
 
-          {/* Bouton + */}
           <Fab
             color="primary"
             onClick={handlePlus}
             sx={{
-              position: "fixed",
-              bottom: 16,
-              left: isMobile ? "50%" : 16,
-              transform: isMobile ? "translateX(-50%)" : "none",
+              position: "absolute",
+              bottom: 24,
+              right: 24,
+              boxShadow: 3,
+              "&:hover": { transform: "scale(1.1)" },
             }}
           >
             <AddIcon />
@@ -242,75 +294,87 @@ const Messagerie = () => {
         </Box>
       )}
 
+      {/* Chat Section */}
       {(!isMobileOrTablet || showChat) && (
         <Box
           sx={{
-            flexGrow: 1,
-            width: isMobileOrTablet ? "100%" : "70%",
-            p: 3,
+            flex: 1,
             display: "flex",
             flexDirection: "column",
+            bgcolor: "background.default",
+            pt: 8,
           }}
         >
           {isMobileOrTablet && (
-            <IconButton
-              onClick={() => setShowChat(false)}
-              sx={{ mb: 1, pt: 5 }}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                p: 2,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                bgcolor: "background.paper",
+              }}
             >
-              ←
-            </IconButton>
+              <IconButton onClick={() => setShowChat(false)} sx={{ mr: 1 }}>
+                <ArrowBackIosIcon />
+              </IconButton>
+              <Typography variant="h6" fontWeight={600}>
+                {currentConv?.name}
+              </Typography>
+            </Box>
           )}
 
-          {/* En mobile, bouton retour */}
-          {/* {isMobile && currentConv && (
-            <IconButton onClick={() => setCurrentConv(null)}>
-              <ArrowBackIosIcon />
-            </IconButton>
-          )} */}
-
-          {/* Chat header */}
-
-          {currentConv && (
-            <Typography
-              variant="h6"
-              sx={{ p: 2, borderBottom: "1px solid #ddd" }}
-            >
-              {currentConv.name}
-            </Typography>
-          )}
-
-          {/* Messages ou instruction */}
+          {/* Messages Area */}
           <Box
             sx={{
-              flexGrow: 1,
+              flex: 1,
+              overflow: "auto",
               p: 2,
-              bgcolor: currentConv ? "#f0f2f5" : "inherit",
-              overflowY: currentConv ? "auto" : "visible",
+              backgroundImage:
+                "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
             }}
           >
             {currentConv ? (
-              <Stack spacing={1}>
-                {messages.map((msg) => {
-                  const mine = Number(msg.senderId) === user.id;
-                  return (
+              messages.map((msg) => {
+                const mine = Number(msg.senderId) === user.id;
+                return (
+                  <Box
+                    key={msg.id}
+                    sx={{
+                      alignSelf: mine ? "flex-end" : "flex-start",
+                      maxWidth: "75%",
+                      minWidth: 120,
+                    }}
+                  >
                     <Box
-                      key={msg.id}
                       sx={{
-                        alignSelf: mine ? "flex-end" : "flex-start",
-                        bgcolor: mine ? "#1976d2" : "#e0e0e0",
-                        color: mine ? "#fff" : "#000",
-                        px: 2,
-                        py: 1,
-                        borderRadius: 2,
-                        maxWidth: "70%",
+                        p: 2,
+                        borderRadius: 4,
+                        bgcolor: mine ? "primary.main" : "background.paper",
+                        color: mine ? "common.white" : "text.primary",
+                        boxShadow: 1,
+                        border: mine
+                          ? "none"
+                          : `1px solid ${theme.palette.divider}`,
                       }}
                     >
                       <Typography variant="body2">{msg.text}</Typography>
+
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        textAlign="right"
+                        sx={{ mt: 1, opacity: 0.7 }}
+                      >
+                        {formatMessageTime(msg.createdAt)}
+                      </Typography>
                     </Box>
-                  );
-                })}
-                <div ref={messagesEndRef} />
-              </Stack>
+                  </Box>
+                );
+              })
             ) : (
               <Box
                 sx={{
@@ -318,89 +382,149 @@ const Messagerie = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#888",
+                  textAlign: "center",
                 }}
               >
-                <Typography>
-                  Sélectionnez une conversation pour commencer
+                <Typography variant="h6" color="text.secondary">
+                  Sélectionnez une conversation ou créez-en une nouvelle
                 </Typography>
               </Box>
             )}
+            <div ref={messagesEndRef} />
           </Box>
 
-          {/* Input */}
+          {/* Message Input */}
           {currentConv && (
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ p: 2, borderTop: "1px solid #ddd" }}
+            <Box
+              sx={{
+                p: 2,
+                borderTop: `1px solid ${theme.palette.divider}`,
+                bgcolor: "background.paper",
+              }}
             >
-              <TextField
-                fullWidth
-                size="small"
-                value={message}
-                placeholder="Tapez un message..."
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !e.shiftKey && handleSend()
-                }
-                multiline
-                maxRows={6} // Limite à environ 6 lignes visibles
-                sx={{
-                  "& .MuiInputBase-root": {
-                    overflowY: "auto",
-                    maxHeight: 150, // Limite physique du champ
-                  },
-                }}
-              />
-
-              <IconButton color="primary" onClick={handleSend}>
-                <SendIcon />
-              </IconButton>
-            </Stack>
+              <Stack direction="row" spacing={1} alignItems="flex-end">
+                <TextField
+                  fullWidth
+                  multiline
+                  maxRows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && !e.shiftKey && handleSend()
+                  }
+                  placeholder="Écrivez un message..."
+                  variant="outlined"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 4,
+                      bgcolor: "background.default",
+                      "&:hover fieldset": { borderColor: "primary.light" },
+                    },
+                  }}
+                />
+                <IconButton
+                  onClick={handleSend}
+                  disabled={!message.trim()}
+                  sx={{
+                    bgcolor: "primary.main",
+                    color: "white",
+                    "&:hover": { bgcolor: "primary.dark" },
+                    height: 40,
+                    width: 40,
+                    mb: 0.5,
+                  }}
+                >
+                  <SendIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+            </Box>
           )}
         </Box>
       )}
 
-      {/* Modal 1 */}
+      {/* Modals */}
       <Dialog
         open={step === "chooseCourse"}
         onClose={() => setStep("none")}
+        maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Choisissez un cours</DialogTitle>
-        <DialogContent dividers>
-          {courses.map((c) => (
-            <ListItemButton key={c.id} onClick={() => handleSelectCourse(c.id)}>
-              <ListItemText primary={c.titre} />
-            </ListItemButton>
-          ))}
+        <DialogTitle sx={{ bgcolor: "background.paper" }}>
+          Sélectionnez un cours
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <List>
+            {courses.map((c) => (
+              <ListItemButton
+                key={c.id}
+                onClick={() => handleSelectCourse(c.id)}
+                sx={{
+                  "&:hover": { bgcolor: "action.hover" },
+                  px: 3,
+                  py: 2,
+                }}
+              >
+                <ListItemText
+                  primary={c.titre}
+                  primaryTypographyProps={{ fontWeight: 500 }}
+                  secondary={`${c.lecons?.length || 0} leçons`}
+                />
+              </ListItemButton>
+            ))}
+          </List>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStep("none")}>Annuler</Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Modal 2 */}
       <Dialog
         open={step === "chooseUser"}
         onClose={() => setStep("none")}
+        maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Avec qui parler ?</DialogTitle>
-        <DialogContent dividers>
-          {availableUsers.map((u) => (
-            <ListItemButton key={u.id} onClick={() => handleSelectUser(u.id)}>
-              <ListItemText
-                primary={u.nom}
-                secondary={u.role === "formateur" ? "Formateur" : "Étudiant"}
-              />
-            </ListItemButton>
-          ))}
+        <DialogTitle sx={{ bgcolor: "background.paper" }}>
+          Sélectionnez un contact
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <List>
+            <Typography variant="subtitle2" sx={{ px: 3, pt: 2, pb: 1 }}>
+              Formateurs
+            </Typography>
+            {availableUsers
+              .filter((u) => u.role === "formateur")
+              .map((u) => (
+                <ListItemButton
+                  key={u.id}
+                  onClick={() => handleSelectUser(u.id)}
+                  sx={{ px: 3, py: 1.5 }}
+                >
+                  <ListItemAvatar>
+                    <Avatar>{u.nom[0]}</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary={u.nom} secondary="Formateur" />
+                </ListItemButton>
+              ))}
+
+            <Divider sx={{ my: 1 }} />
+
+            <Typography variant="subtitle2" sx={{ px: 3, pt: 2, pb: 1 }}>
+              Étudiants
+            </Typography>
+            {availableUsers
+              .filter((u) => u.role === "etudiant")
+              .map((u) => (
+                <ListItemButton
+                  key={u.id}
+                  onClick={() => handleSelectUser(u.id)}
+                  sx={{ px: 3, py: 1.5 }}
+                >
+                  <ListItemAvatar>
+                    <Avatar>{u.nom[0]}</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary={u.nom} secondary="Étudiant" />
+                </ListItemButton>
+              ))}
+          </List>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStep("none")}>Annuler</Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );

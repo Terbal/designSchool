@@ -12,6 +12,7 @@ const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10, // ← Max 10 connexions en même temps
   queueLimit: 0, // ← Pas de limite de queue
+  timezone: "+00:00", // UTC
 });
 
 export default db;

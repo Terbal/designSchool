@@ -11,27 +11,37 @@ const chatSocket = (io) => {
     });
 
     // 2) Lorsqu’un client émet "sendMessage"
+
+    // Modifiez la partie d'émission des messages
     socket.on("sendMessage", async (data) => {
       const { conversationId, senderId, text } = data;
       try {
-        // Enregistre en base
-        const [result] = await db.query(
+        // Insertion du message
+        const [insertResult] = await db.query(
           "INSERT INTO messages (conversation_id, sender, text) VALUES (?, ?, ?)",
           [conversationId, senderId, text]
         );
-        const saved = {
-          id: result.insertId,
-          conversationId,
-          senderId,
-          text,
+
+        // Récupération du message complet
+        const [messages] = await db.query(
+          "SELECT *, time AS createdAt FROM messages WHERE id = ?",
+          [insertResult.insertId]
+        );
+
+        // Émission du message formaté
+        const savedMessage = {
+          id: messages[0].id,
+          conversationId: messages[0].conversation_id,
+          senderId: messages[0].sender,
+          text: messages[0].text,
+          createdAt: messages[0].createdAt, // Utilisation de l'alias
         };
-        // Émet à tous les clients de la room
-        io.to(conversationId).emit("newMessage", saved);
+
+        io.to(conversationId).emit("newMessage", savedMessage);
       } catch (err) {
         console.error("Erreur insertion message :", err);
       }
     });
-
     socket.on("disconnect", () => {
       console.log("Un utilisateur s’est déconnecté");
     });

@@ -13,8 +13,20 @@ import {
   InputLabel,
   FormControl,
   TextField,
+  Grid,
+  Avatar,
+  useTheme,
+  Card,
+  CardContent,
+  Chip,
+  InputAdornment,
+  CardMedia,
+  Divider,
 } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
+import { Person, Email, Schedule, School } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import theme from "../theme";
 
 const formatCreneau = (dateStr, heureStr, places) => {
   if (!dateStr || !heureStr || places === undefined) return "Créneau invalide";
@@ -128,69 +140,237 @@ export default function FormulaireInscription() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Inscription au cours
-      </Typography>
-
-      {cours && (
-        <Box sx={{ my: 2 }}>
-          <Typography variant="h6">{cours.titre}</Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            {cours.description}
-          </Typography>
-        </Box>
-      )}
-
-      <form onSubmit={handleInscription}>
-        <TextField
-          label="Nom de l'étudiant"
-          fullWidth
-          sx={{ mb: 2 }}
-          value={etudiantNom}
-          onChange={(e) => setEtudiantNom(e.target.value)}
-        />
-        <TextField
-          label="Email de l'étudiant"
-          fullWidth
-          sx={{ mb: 2 }}
-          value={etudiantEmail}
-          onChange={(e) => setEtudiantEmail(e.target.value)}
-        />
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel id="creneau-label">Créneau</InputLabel>
-          <Select
-            labelId="creneau-label"
-            id="creneau-select"
-            value={selectedCreneauId}
-            label="Créneau"
-            onChange={(e) => setSelectedCreneauId(e.target.value)}
+    <Container maxWidth="md" sx={{ py: 8 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Card
+          sx={{
+            borderRadius: 4,
+            boxShadow: 3,
+            overflow: "visible",
+          }}
+        >
+          {/* En-tête */}
+          <Box
+            sx={{
+              bgcolor: "primary.main",
+              color: "white",
+              p: 4,
+              borderTopLeftRadius: 4,
+              borderTopRightRadius: 4,
+              position: "relative",
+              overflow: "hidden",
+              "&:before": {
+                content: '""',
+                position: "absolute",
+                top: -50,
+                right: -50,
+                width: 100,
+                height: 100,
+                background: "rgba(255,255,255,0.1)",
+                borderRadius: "50%",
+              },
+            }}
           >
-            {cours.creneaux.map((creneau) => {
-              console.log(creneau); // TEMPORAIRE
-              return (
-                <MenuItem key={creneau.id} value={creneau.id}>
-                  {formatCreneau(
-                    creneau.date,
-                    creneau.heure,
-                    creneau.places_disponibles
+            <Grid container alignItems="center" spacing={3}>
+              <Grid item>
+                <Avatar
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    bgcolor: "white",
+                    color: "primary.main",
+                  }}
+                >
+                  <School sx={{ fontSize: 32 }} />
+                </Avatar>
+              </Grid>
+              <Grid item xs>
+                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                  Inscription au cours
+                </Typography>
+                <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                  {cours?.titre}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Corps du formulaire */}
+          <CardContent sx={{ p: 4 }}>
+            <Grid container spacing={4}>
+              {/* Colonne de gauche - Formulaire */}
+              <Grid item xs={12} md={7}>
+                <form onSubmit={handleInscription}>
+                  <TextField
+                    fullWidth
+                    label="Nom complet"
+                    variant="outlined"
+                    value={etudiantNom}
+                    onChange={(e) => setEtudiantNom(e.target.value)}
+                    sx={{ mb: 3 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person color="action" />
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 2 },
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Adresse email"
+                    variant="outlined"
+                    value={etudiantEmail}
+                    onChange={(e) => setEtudiantEmail(e.target.value)}
+                    sx={{ mb: 3 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Email color="action" />
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 2 },
+                    }}
+                  />
+
+                  <FormControl fullWidth sx={{ mb: 3 }}>
+                    <InputLabel id="creneau-label">Choix du créneau</InputLabel>
+                    <Select
+                      labelId="creneau-label"
+                      value={selectedCreneauId}
+                      label="Choix du créneau"
+                      onChange={(e) => setSelectedCreneauId(e.target.value)}
+                      sx={{ borderRadius: 2 }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            borderRadius: 2,
+                            mt: 1,
+                          },
+                        },
+                      }}
+                    >
+                      {cours?.creneaux.map((creneau) => (
+                        <MenuItem
+                          key={creneau.id}
+                          value={creneau.id}
+                          sx={{ py: 1.5 }}
+                        >
+                          <Box sx={{ width: "100%" }}>
+                            <Typography variant="subtitle1" fontWeight={500}>
+                              {formatCreneau(
+                                creneau.date,
+                                creneau.heure,
+                                creneau.places_disponibles
+                              )}
+                            </Typography>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                mt: 1,
+                              }}
+                            >
+                              <Chip
+                                label={`${creneau.places_disponibles} places`}
+                                size="small"
+                                color={
+                                  creneau.places_disponibles > 2
+                                    ? "success"
+                                    : "error"
+                                }
+                                sx={{ fontWeight: 600 }}
+                              />
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                Heure : {creneau.heure}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {message && (
+                    <Alert
+                      severity="error"
+                      sx={{
+                        mb: 3,
+                        borderRadius: 2,
+                        alignItems: "center",
+                      }}
+                    >
+                      {message}
+                    </Alert>
                   )}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
 
-        {message && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {message}
-          </Alert>
-        )}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    type="submit"
+                    size="large"
+                    sx={{
+                      py: 1.5,
+                      borderRadius: 2,
+                      fontWeight: 700,
+                      bgcolor: "primary.main",
+                      "&:hover": {
+                        bgcolor: "primary.dark",
+                        transform: "translateY(-1px)",
+                        boxShadow: 2,
+                      },
+                    }}
+                  >
+                    Valider l'inscription
+                  </Button>
+                </form>
+              </Grid>
 
-        <Button variant="contained" type="submit" fullWidth>
-          Confirmer l’inscription
-        </Button>
-      </form>
+              {/* Colonne de droite - Détails */}
+              <Grid item xs={12} md={5}>
+                <Box
+                  sx={{
+                    bgcolor: "background.default",
+                    borderRadius: 3,
+                    p: 3,
+                    height: "100%",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                    Détails du cours
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    {cours?.description}
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                    <Chip
+                      icon={<Schedule />}
+                      label={`${cours?.creneaux.length} créneaux disponibles`}
+                      color="info"
+                    />
+                    <Chip
+                      label={`Formateur : ${
+                        cours?.formateur || "Non spécifié"
+                      }`}
+                      variant="outlined"
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </motion.div>
     </Container>
   );
 }
