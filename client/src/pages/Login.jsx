@@ -120,7 +120,7 @@ export default function Login() {
                 fontSize: { xs: "2rem", md: "3rem" },
               }}
             >
-              Bienvenue sur EDDesign
+              Bienvenue
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Connectez-vous à votre espace d'apprentissage

@@ -19,6 +19,7 @@ import {
   Chip,
   useTheme,
 } from "@mui/material";
+import Footer from "../components/Footer";
 
 export default function DashboardEtudiant() {
   const theme = useTheme();
@@ -193,6 +194,7 @@ export default function DashboardEtudiant() {
           </Box>
         )}
       </Container>
+      <Footer />
     </>
   );
 }

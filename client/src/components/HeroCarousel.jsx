@@ -104,7 +104,7 @@ const HeroCarousel = () => {
               </Typography>
               <Button
                 component={Link}
-                to="/cours" // ← CHEMIN de ta page de formations
+                to="/dashboard-etudiant" // ← CHEMIN de ta page de formations
                 variant="contained"
                 size="large"
                 sx={{

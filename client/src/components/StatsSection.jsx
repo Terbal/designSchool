@@ -8,12 +8,12 @@ import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 const stats = [
   {
     icon: <SchoolIcon fontSize="large" color="primary" />,
-    number: "12",
+    number: "3",
     label: "Formations disponibles",
   },
   {
     icon: <ThumbUpIcon fontSize="large" color="primary" />,
-    number: "98%",
+    number: "91,1%",
     label: "Taux de satisfaction",
   },
   {

@@ -178,7 +178,7 @@ const Navbar = () => {
                   <>
                     {navButton("/", "Accueil")}
                     {navButton("/dashboard", "Dashboard")}
-                    {/* Suppression du bouton Profil */}
+                    {navButton("/profil", "Profil")}
                     <IconButton
                       component={Link}
                       to="/messagerie"
@@ -238,7 +238,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    {navButton("/login", "Sign In", <LoginIcon />)}
+                    {navButton("/login", "Connexion", <LoginIcon />)}
                     <Button
                       component={Link}
                       to="/signup"
@@ -255,7 +255,7 @@ const Navbar = () => {
                         },
                       }}
                     >
-                      Get Started
+                      S'inscrire
                     </Button>
                   </>
                 )}
@@ -320,7 +320,7 @@ const Navbar = () => {
           <List sx={{ py: 0 }}>
             {user ? (
               <>
-                {drawerLink("/", <HomeIcon />, "Home")}
+                {drawerLink("/", <HomeIcon />, "Accueil")}
                 {drawerLink("/dashboard", <DashboardIcon />, "Dashboard")}
                 {/* Suppression du lien Profil */}
                 {drawerLink(
@@ -334,13 +334,13 @@ const Navbar = () => {
                   "Messages"
                 )}
                 <Divider sx={{ my: 2 }} />
-                {drawerButton(logout, <ExitToAppIcon />, "Log Out")}
+                {drawerButton(logout, <ExitToAppIcon />, "Déconnexion")}
               </>
             ) : (
               <>
-                {drawerLink("/", <HomeIcon />, "Home")}
-                {drawerLink("/login", <LoginIcon />, "Sign In")}
-                {drawerLink("/signup", <HowToRegIcon />, "Get Started")}
+                {drawerLink("/", <HomeIcon />, "Accueil")}
+                {drawerLink("/login", <LoginIcon />, "Connexion")}
+                {drawerLink("/signup", <HowToRegIcon />, "S'inscrire")}
               </>
             )}
           </List>

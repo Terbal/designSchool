@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import {
   Container,
@@ -15,22 +15,26 @@ import {
   TextField,
   Grid,
   Avatar,
-  useTheme,
   Card,
   CardContent,
   Chip,
   InputAdornment,
-  CardMedia,
   Divider,
+  useTheme,
+  IconButton,
 } from "@mui/material";
-import { useAuth } from "../contexts/AuthContext";
-import { Person, Email, Schedule, School } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Person,
+  Email,
+  Schedule,
+  School,
+} from "@mui/icons-material";
 import { motion } from "framer-motion";
-import theme from "../theme";
+import { useAuth } from "../contexts/AuthContext";
 
 const formatCreneau = (dateStr, heureStr, places) => {
   if (!dateStr || !heureStr || places === undefined) return "Créneau invalide";
-
   const jours = [
     "Dimanche",
     "Lundi",
@@ -54,31 +58,25 @@ const formatCreneau = (dateStr, heureStr, places) => {
     "novembre",
     "décembre",
   ];
-
-  const dateObj = new Date(dateStr); // Pas de concaténation ici
-
+  const dateObj = new Date(dateStr);
   if (isNaN(dateObj)) return "Date invalide";
-
   const jourSemaine = jours[dateObj.getUTCDay()];
   const jour = dateObj.getUTCDate();
   const moisNom = mois[dateObj.getUTCMonth()];
   const annee = dateObj.getUTCFullYear();
-
-  // On extrait l'heure séparément, elle est déjà fournie correctement
   const [heure, minute] = heureStr.split(":");
-
   return `${jourSemaine} ${jour} ${moisNom} ${annee} à ${heure}h${minute} (${places} places disponibles)`;
 };
 
 export default function FormulaireInscription() {
   const { id } = useParams();
-  const { user } = useAuth(); // user.name et user.email ?
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const [cours, setCours] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
-
   const [selectedCreneauId, setSelectedCreneauId] = useState("");
   const [etudiantNom, setEtudiantNom] = useState(user?.name || "");
   const [etudiantEmail, setEtudiantEmail] = useState(user?.email || "");
@@ -102,15 +100,12 @@ export default function FormulaireInscription() {
 
   const handleInscription = async (e) => {
     e.preventDefault();
-
     if (!etudiantNom || !etudiantEmail || !selectedCreneauId) {
       setMessage("Veuillez remplir tous les champs.");
       return;
     }
-
     try {
       const token = localStorage.getItem("token");
-
       await axios.post(
         "http://localhost:5000/api/inscriptions",
         {
@@ -119,12 +114,9 @@ export default function FormulaireInscription() {
           etudiant_nom: etudiantNom,
           etudiant_email: etudiantEmail,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      navigate("/");
+      navigate("/dashboard-etudiant");
     } catch (error) {
       console.error("Erreur d'inscription :", error);
       setMessage("Erreur lors de l'inscription.");
@@ -141,6 +133,23 @@ export default function FormulaireInscription() {
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
+      {/* Bouton retour */}
+      <Box sx={{ mb: 3 }}>
+        <Button
+          component={Link}
+          to="/dashboard-etudiant"
+          startIcon={<ArrowBack />}
+          sx={{
+            textTransform: "none",
+            color: theme.palette.text.secondary,
+            fontWeight: 500,
+            "&:hover": { backgroundColor: theme.palette.action.hover },
+          }}
+        >
+          Retour au dashboard
+        </Button>
+      </Box>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
