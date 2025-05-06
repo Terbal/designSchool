@@ -75,4 +75,9 @@ router.post("/message", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  const [rows] = await db.query("SELECT * FROM conversations");
+  res.json(rows);
+});
+
 export default router;

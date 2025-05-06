@@ -3,112 +3,110 @@ import db from "../db.js";
 export const getCourses = async (req, res) => {
   try {
     const [courses] = await db.query(`
-        SELECT c.*, u.nom as formateur_nom 
-        FROM cours c
-        LEFT JOIN users u ON c.formateur_id = u.id
-      `);
+      SELECT
+        c.*, u.nom AS formateur_nom,
+        COUNT(i.id) AS studentCount
+      FROM cours c
+      LEFT JOIN users u ON c.formateur_id = u.id
+      LEFT JOIN inscription i ON i.cours_id = c.id
+      GROUP BY c.id
+      ORDER BY c.date_creation DESC
+    `);
     res.json(courses);
   } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur getCourses:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la récupération des cours." });
   }
 };
 
 export const createCourse = async (req, res) => {
   const { titre, description, formateur_id, duration, prix } = req.body;
+  if (!titre || !description) {
+    return res
+      .status(400)
+      .json({ error: "Le titre et la description sont obligatoires." });
+  }
   try {
     await db.query(
-      "INSERT INTO cours (titre, description, formateur_id, duration, prix) VALUES (?, ?, ?, ?, ?)",
-      [titre, description, formateur_id, duration, prix]
+      `INSERT INTO cours (titre, description, formateur_id, duration, prix)
+       VALUES (?, ?, ?, ?, ?)`,
+      [titre, description, formateur_id || null, duration || null, prix || null]
     );
     res.status(201).json({ message: "Cours créé avec succès" });
   } catch (error) {
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur createCourse:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la création du cours." });
   }
 };
 
-// Mettre à jour un cours
 export const updateCourse = async (req, res) => {
   const { id } = req.params;
   const { titre, description, formateur_id, duration, prix } = req.body;
-
   try {
-    // Vérifier d'abord si le cours existe
-    const [existingCourse] = await db.query(
-      "SELECT * FROM cours WHERE id = ?",
-      [id]
-    );
-
-    if (existingCourse.length === 0) {
-      return res.status(404).json({ error: "Cours non trouvé" });
+    const [existing] = await db.query("SELECT id FROM cours WHERE id = ?", [
+      id,
+    ]);
+    if (existing.length === 0) {
+      return res.status(404).json({ error: "Cours non trouvé." });
     }
-
-    // Mise à jour dynamique des champs
-    const updates = [];
+    const fields = [];
     const values = [];
-
-    if (titre) {
-      updates.push("titre = ?");
+    if (titre !== undefined) {
+      fields.push("titre = ?");
       values.push(titre);
     }
-    if (description) {
-      updates.push("description = ?");
+    if (description !== undefined) {
+      fields.push("description = ?");
       values.push(description);
     }
-    if (formateur_id) {
-      updates.push("formateur_id = ?");
+    if (formateur_id !== undefined) {
+      fields.push("formateur_id = ?");
       values.push(formateur_id);
     }
-    if (duration) {
-      updates.push("duration = ?");
+    if (duration !== undefined) {
+      fields.push("duration = ?");
       values.push(duration);
     }
-    if (prix) {
-      updates.push("prix = ?");
+    if (prix !== undefined) {
+      fields.push("prix = ?");
       values.push(prix);
     }
-
-    if (updates.length === 0) {
-      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
-    }
-
-    values.push(id); // Ajouter l'ID à la fin pour la clause WHERE
-
+    values.push(id);
     await db.query(
-      `UPDATE cours SET ${updates.join(", ")} WHERE id = ?`,
+      `UPDATE cours SET ${fields.join(", ")} WHERE id = ?`,
       values
     );
-
     res.json({ message: "Cours mis à jour avec succès" });
   } catch (error) {
-    console.error("Erreur mise à jour cours:", error);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur updateCourse:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la mise à jour du cours." });
   }
 };
 
-// Supprimer un cours
 export const deleteCourse = async (req, res) => {
   const { id } = req.params;
-
   try {
-    // Vérifier d'abord si le cours existe
-    const [existingCourse] = await db.query(
-      "SELECT * FROM cours WHERE id = ?",
-      [id]
-    );
-
-    if (existingCourse.length === 0) {
-      return res.status(404).json({ error: "Cours non trouvé" });
+    const [existing] = await db.query("SELECT id FROM cours WHERE id = ?", [
+      id,
+    ]);
+    if (existing.length === 0) {
+      return res.status(404).json({ error: "Cours non trouvé." });
     }
-
     await db.query("DELETE FROM cours WHERE id = ?", [id]);
-
     res.json({ message: "Cours supprimé avec succès" });
   } catch (error) {
-    console.error("Erreur suppression cours:", error);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur deleteCourse:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la suppression du cours." });
   }
 };
-
 export const getNews = (req, res) => {
   const sql = "SELECT * FROM actualites ORDER BY date_publication DESC";
   req.db.query(sql, (err, results) => {

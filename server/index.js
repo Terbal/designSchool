@@ -27,6 +27,7 @@ app.use("/api/inscription", inscriptionRoutes);
 app.use("/api/users", usersRoutes);
 
 app.use("/api/admin", adminRoutes);
+// app.use("/api/admin", adminUsersRoutes);
 
 app.use("/api/formateurs", formateurRoutes);
 
@@ -37,6 +38,18 @@ app.use("/api/messages", messagesRoutes);
 app.use("/api/cours", coursRoutes);
 
 app.use("/api/inscriptions", inscriptionRoutes);
+
+app.use("/api/conversations", conversationRoutes);
+
+app.get("/api/users", async (req, res) => {
+  try {
+    const [users] = await db.query("SELECT * FROM users"); // ou sans destructuration si ton lib ne renvoie pas un array
+    res.json(users);
+  } catch (err) {
+    console.error("Erreur /api/users :", err);
+    res.status(500).json({ error: "Erreur interne" });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
