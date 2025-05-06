@@ -17,7 +17,7 @@ export default function Dashboard() {
     case "formateur":
       return <Navigate to="/dashboard-formateur" replace />;
     case "admin":
-      return <Navigate to="/admin/users" replace />;
+      return <Navigate to="/admin-dashboard" replace />;
     default:
       return <Navigate to="/" replace />;
   }

@@ -177,7 +177,7 @@ const Navbar = () => {
                 {user ? (
                   <>
                     {navButton("/", "Accueil")}
-                    {navButton("/dashboard", "Dashboard")}
+                    {navButton("/dashboard", "Tableau de bord")}
                     {navButton("/profil", "Profil")}
                     <IconButton
                       component={Link}

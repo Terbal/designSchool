@@ -19,6 +19,7 @@ import FormulaireInscription from "./components/FormulaireInscription";
 import ContenuCours from "./pages/ContenuCours";
 import ChatClasse from "./pages/ChatClasse";
 import Messagerie from "./pages/Messagerie";
+import DashboardAdmin from "./pages/DashboardAdmin";
 
 function App() {
   const { user, loading } = useAuth();
@@ -96,6 +97,14 @@ function App() {
       />
       <Route path="/cours/:id" element={<DetailsCours />} />
       <Route path="/mes-cours" element={<MesCours />} />
+      <Route
+        path="/admin-dashboard"
+        element={
+          <PrivateRoute>
+            {user?.role === "admin" ? <DashboardAdmin /> : <Navigate to="/" />}
+          </PrivateRoute>
+        }
+      />
       <Route
         path="/dashboard-etudiant"
         element={
