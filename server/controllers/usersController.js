@@ -35,6 +35,37 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// Récupérer les cours où l'utilisateur est formateur OU inscrit
+export const getUserCourses = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    // 1) Cours dont il est formateur
+    const [asFormateur] = await db.query(
+      `SELECT id, titre
+       FROM cours
+       WHERE formateur_id = ?`,
+      [userId]
+    );
+
+    // 2) Cours auxquels il est inscrit
+    const [asEtudiant] = await db.query(
+      `SELECT c.id, c.titre
+       FROM inscription i
+       JOIN cours c ON c.id = i.cours_id
+       WHERE i.etudiant_id = ?`,
+      [userId]
+    );
+
+    // On renvoie la fusion
+    return res.json([...asFormateur, ...asEtudiant]);
+  } catch (err) {
+    console.error("Erreur getUserCourses :", err);
+    return res
+      .status(500)
+      .json({ error: "Erreur serveur lors du fetch des cours" });
+  }
+};
+
 export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { nom, email, mot_de_passe } = req.body;

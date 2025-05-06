@@ -126,7 +126,7 @@ const CoursesTab = () => {
     { field: "titre", headerName: "Titre", flex: 1 },
     { field: "formateur_nom", headerName: "Formateur", flex: 1 },
     { field: "duration", headerName: "Durée (h)", flex: 0.5 },
-    { field: "prix", headerName: "Prix (€)", flex: 0.5 },
+    { field: "prix", headerName: "Prix ($)", flex: 0.5 },
     { field: "studentCount", headerName: "Étudiants", flex: 0.5 },
     {
       field: "actions",

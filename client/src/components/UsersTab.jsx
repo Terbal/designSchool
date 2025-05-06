@@ -15,7 +15,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Add, Edit, Delete } from "@mui/icons-material";
+import { Add, Edit, Delete, School } from "@mui/icons-material";
 import api from "../api/axios";
 
 const UsersTab = () => {
@@ -25,6 +25,9 @@ const UsersTab = () => {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({ nom: "", email: "", role: "etudiant" });
   const [error, setError] = useState("");
+  const [coursesDialogOpen, setCoursesDialogOpen] = useState(false);
+  const [currentUserCourses, setCurrentUserCourses] = useState([]);
+  const [currentUserName, setCurrentUserName] = useState("");
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -36,6 +39,18 @@ const UsersTab = () => {
       setError("Impossible de charger les utilisateurs.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserCourses = async (userId, userName) => {
+    try {
+      const res = await api.get(`/users/${userId}/cours`);
+      setCurrentUserCourses(res.data);
+      setCurrentUserName(userName);
+      setCoursesDialogOpen(true);
+    } catch (err) {
+      console.error(err);
+      setError("Impossible de charger les cours de l'utilisateur.");
     }
   };
 
@@ -85,6 +100,16 @@ const UsersTab = () => {
   };
 
   const columns = [
+    {
+      field: "cours",
+      headerName: "Cours",
+      sortable: false,
+      renderCell: ({ row }) => (
+        <IconButton onClick={() => fetchUserCourses(row.id, row.nom)}>
+          <School />
+        </IconButton>
+      ),
+    },
     { field: "id", headerName: "ID", width: 70 },
     { field: "nom", headerName: "Nom", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
@@ -176,6 +201,29 @@ const UsersTab = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+        open={coursesDialogOpen}
+        onClose={() => setCoursesDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Cours de {currentUserName}</DialogTitle>
+        <DialogContent dividers>
+          {currentUserCourses.length > 0 ? (
+            <ul>
+              {currentUserCourses.map((c) => (
+                <li key={c.id}>{c.titre}</li>
+              ))}
+            </ul>
+          ) : (
+            <Typography>Aucun cours trouvé.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCoursesDialogOpen(false)}>Fermer</Button>
+        </DialogActions>
+      </Dialog>
+      ;
     </Box>
   );
 };

@@ -12,6 +12,7 @@ import http from "http";
 import chatSocket from "./sockets/chatSocket.js";
 import conversationRoutes from "./routes/conversations.js";
 import messagesRoutes from "./routes/messages.js";
+import adminUsersRoute from "./routes/adminUsersRoute.js";
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ app.use("/api/users", usersRoutes);
 
 app.use("/api/admin", adminRoutes);
 // app.use("/api/admin", adminUsersRoutes);
+
+app.use("/api/admin/users", adminUsersRoute);
 
 app.use("/api/formateurs", formateurRoutes);
 
