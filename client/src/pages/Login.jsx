@@ -19,6 +19,7 @@ import LockPersonIcon from "@mui/icons-material/LockPerson";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
 import theme from "../theme";
+import { toast } from "react-hot-toast";
 
 const Illustration = () => (
   <motion.div
@@ -64,17 +65,15 @@ export default function Login() {
         mot_de_passe: motDePasse,
       });
 
-      // ✅ Appeler login() du contexte Auth
       login(res.data.user, res.data.token);
-
-      navigate("/dashboard"); // ✅ redirection
+      toast.success("Connexion réussie !"); // ← notification succès
+      navigate("/dashboard");
     } catch (err) {
       console.error("Erreur complète :", err);
-      console.log("Détails axios :", err.response?.data);
-      setMessage(
-        err.response?.data?.error || "Erreur lors de la tentative de connexion"
-      );
+      const msg = err.response?.data?.error || "Erreur lors de la connexion";
+      setMessage(msg);
       setError(true);
+      toast.error(msg); // ← notification d’erreur
     }
   };
 
@@ -188,7 +187,7 @@ export default function Login() {
               Se connecter
             </Button>
 
-            {message && (
+            {/* {message && (
               <Fade in={!!message}>
                 <Alert
                   severity={error ? "error" : "success"}
@@ -197,7 +196,7 @@ export default function Login() {
                   {message}
                 </Alert>
               </Fade>
-            )}
+            )} */}
 
             <Typography
               variant="body2"

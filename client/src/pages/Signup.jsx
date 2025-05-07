@@ -17,6 +17,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
 import { Box, Container } from "@mui/system";
+import { toast } from "react-hot-toast";
 
 const Illustration = () => (
   <motion.div
@@ -57,19 +58,32 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await axios.post(
         "http://localhost:5000/api/users/signup",
         formData
       );
+
+      // Affiche un toast de succès avec le message reçu
+      toast.success(res.data.message);
+
+      // Affiche aussi le message dans l’UI si tu le souhaites
       setMessage(res.data.message);
 
-      // 🔁 Redirection après succès :
+      // Redirection après un court délai pour laisser le toast apparaître
       setTimeout(() => {
         navigate("/login");
-      }, 1500); // attends 1.5s pour montrer le message
+      }, 1500);
     } catch (error) {
-      setMessage(error.response?.data?.error || "Erreur lors de l’inscription");
+      // Détermine le message d’erreur à afficher
+      const msg = error.response?.data?.error || "Erreur lors de l’inscription";
+
+      // Affiche un toast d’erreur
+      toast.error(msg);
+
+      // Mets à jour l’UI avec le message si besoin
+      setMessage(msg);
     }
   };
 
