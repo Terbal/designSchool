@@ -14,6 +14,10 @@ import conversationRoutes from "./routes/conversations.js";
 import messagesRoutes from "./routes/messages.js";
 import adminUsersRoute from "./routes/adminUsersRoute.js";
 import actualitesRoutes from "./routes/actualitesRoutes.js";
+import conversationsRoutes from "./routes/conversationsRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
+
+// ...
 
 dotenv.config();
 
@@ -24,6 +28,8 @@ app.use(express.json());
 
 // Brancher les actus sous /api/actualites
 app.use("/api/actualites", actualitesRoutes);
+
+app.use("/api/admin/stats", statsRoutes);
 
 app.use("/api/conversations", conversationRoutes);
 
@@ -47,6 +53,8 @@ app.use("/api/cours", coursRoutes);
 app.use("/api/inscriptions", inscriptionRoutes);
 
 app.use("/api/conversations", conversationRoutes);
+
+app.use("/api/conversations", conversationsRoutes);
 
 app.get("/api/users", async (req, res) => {
   try {
