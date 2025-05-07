@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 import CoursesTab from "../components/CoursesTab";
 import UsersTab from "../components/UsersTab";
+import NewsTab from "../components/NewsTab";
 // plus tard: UsersTab, NewsTab, MessagesTab
 
 const DashboardAdmin = () => {
@@ -20,7 +21,7 @@ const DashboardAdmin = () => {
       <Box mt={2}>
         {tab === 0 && <CoursesTab />}
         {tab === 1 && <UsersTab />}
-        {tab === 2 && <div>Section Actualités…</div>}
+        {tab === 2 && <NewsTab />}
         {tab === 3 && <div>Section Messagerie…</div>}
       </Box>
     </Box>

@@ -13,6 +13,7 @@ import chatSocket from "./sockets/chatSocket.js";
 import conversationRoutes from "./routes/conversations.js";
 import messagesRoutes from "./routes/messages.js";
 import adminUsersRoute from "./routes/adminUsersRoute.js";
+import actualitesRoutes from "./routes/actualitesRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ const app = express();
 // app.use(cors());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
+
+// Brancher les actus sous /api/actualites
+app.use("/api/actualites", actualitesRoutes);
 
 app.use("/api/conversations", conversationRoutes);
 
