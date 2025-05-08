@@ -51,6 +51,7 @@ export default function Login() {
   const [motDePasse, setMotDePasse] = useState("");
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(false);
+  const theme = useTheme();
 
   const navigate = useNavigate(); // ✅ Hook déplacé ici, correct
 
