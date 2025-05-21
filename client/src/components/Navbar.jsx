@@ -18,6 +18,8 @@ import {
   useScrollTrigger,
   Slide,
   CssBaseline,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -44,8 +46,11 @@ export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { mode, toggleColorMode } = useContext(ColorModeContext);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  // Met à jour la progression de scroll (pour la barre et le style)
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
@@ -65,12 +70,8 @@ export default function Navbar() {
     ? [
         { to: "/", label: "Accueil", icon: <HomeIcon /> },
         { to: "/dashboard", label: "Tableau de bord", icon: <DashboardIcon /> },
-        { to: "/profil", label: "Profil", icon: <PersonIcon /> },
       ]
-    : [
-        { to: "/login", label: "Connexion", icon: <LoginIcon /> },
-        { to: "/signup", label: "S'inscrire", icon: <HowToRegIcon /> },
-      ];
+    : [];
 
   const drawerItems = user
     ? [
@@ -94,7 +95,6 @@ export default function Navbar() {
     <>
       <CssBaseline />
 
-      {/* Barre de progression */}
       <Box
         sx={{
           position: "fixed",
@@ -114,7 +114,7 @@ export default function Navbar() {
           position="fixed"
           elevation={0}
           sx={{
-            backdropFilter: isHomePage && !scrolled ? "blur(8px)" : "none", // Blur uniquement en haut
+            backdropFilter: isHomePage && !scrolled ? "blur(8px)" : "none",
             background: isHomePage
               ? scrolled
                 ? theme.palette.background.paper
@@ -147,7 +147,6 @@ export default function Navbar() {
               </Typography>
             </Box>
 
-            {/* Liens bureau */}
             <Box
               sx={{
                 display: { xs: "none", md: "flex" },
@@ -176,31 +175,105 @@ export default function Navbar() {
                 </Button>
               ))}
 
-              {user && (
-                <IconButton
-                  component={Link}
-                  to="/messagerie"
-                  sx={{ color: "inherit" }}
-                >
-                  <Badge badgeContent={2} color="secondary">
-                    <ChatIcon />
-                  </Badge>
-                </IconButton>
-              )}
-
-              {/* Toggle thema */}
-              <IconButton onClick={toggleColorMode} color="inherit">
-                {mode === "light" ? <Brightness4Icon /> : <Brightness7Icon />}
-              </IconButton>
-
-              {user && (
-                <IconButton onClick={logout} color="inherit">
-                  <ExitToAppIcon />
-                </IconButton>
+              {user ? (
+                <>
+                  <IconButton onClick={handleMenuOpen} color="inherit">
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                      {user.nom[0]}
+                    </Avatar>
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    PaperProps={{
+                      sx: {
+                        mt: 2,
+                        minWidth: 200,
+                        boxShadow: theme.shadows[3],
+                      },
+                    }}
+                  >
+                    <MenuItem
+                      component={Link}
+                      to="/profil"
+                      onClick={handleMenuClose}
+                    >
+                      <ListItemIcon>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText>Profil</ListItemText>
+                    </MenuItem>
+                    <MenuItem
+                      component={Link}
+                      to="/messagerie"
+                      onClick={handleMenuClose}
+                    >
+                      <ListItemIcon>
+                        <Badge badgeContent={2} color="secondary">
+                          <ChatIcon />
+                        </Badge>
+                      </ListItemIcon>
+                      <ListItemText>Messages</ListItemText>
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        toggleColorMode();
+                        handleMenuClose();
+                      }}
+                    >
+                      <ListItemIcon>
+                        {mode === "light" ? (
+                          <Brightness4Icon />
+                        ) : (
+                          <Brightness7Icon />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText>
+                        {mode === "light" ? "Mode Sombre" : "Mode Clair"}
+                      </ListItemText>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem
+                      onClick={() => {
+                        logout();
+                        handleMenuClose();
+                      }}
+                    >
+                      <ListItemIcon>
+                        <ExitToAppIcon />
+                      </ListItemIcon>
+                      <ListItemText>Déconnexion</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Button
+                    component={Link}
+                    to="/login"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<LoginIcon />}
+                    sx={{
+                      px: 3,
+                      borderRadius: 2,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Connexion
+                  </Button>
+                  <IconButton onClick={toggleColorMode} color="inherit">
+                    {mode === "light" ? (
+                      <Brightness4Icon />
+                    ) : (
+                      <Brightness7Icon />
+                    )}
+                  </IconButton>
+                </>
               )}
             </Box>
 
-            {/* Menu mobile */}
             <IconButton
               edge="end"
               onClick={() => setDrawerOpen(true)}
@@ -212,7 +285,7 @@ export default function Navbar() {
         </AppBar>
       </Slide>
 
-      {/* Drawer */}
+      {/* Drawer reste inchangé */}
       <Drawer
         anchor="right"
         open={drawerOpen}
