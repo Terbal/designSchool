@@ -257,7 +257,7 @@ export const loginUser = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET || "secret123",
-      { expiresIn: "2h" }
+      { expiresIn: "7d" }
     );
 
     console.log("✅ Connexion réussie, token généré");

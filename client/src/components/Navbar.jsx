@@ -75,7 +75,7 @@ export default function Navbar() {
   const drawerItems = user
     ? [
         { to: "/", label: "Accueil", icon: <HomeIcon /> },
-        { to: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
+        { to: "/dashboard", label: "Tableau de bord", icon: <DashboardIcon /> },
         { to: "/messagerie", label: "Messages", icon: <ChatIcon />, badge: 2 },
         {
           action: logout,

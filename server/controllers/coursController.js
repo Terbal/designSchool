@@ -73,17 +73,22 @@ export const updateCours = async (req, res) => {
 export const getEtudiantsParModule = async (req, res) => {
   try {
     const moduleId = req.params.id;
-
     const [rows] = await db.query(
       `
-      SELECT u.id, u.nom, u.email
+      SELECT
+        i.id,
+        u.nom,
+        u.email,
+        i.date_inscription,
+        c.date       AS creneau_date,
+        c.heure      AS creneau_heure
       FROM inscription i
       JOIN users u ON i.etudiant_id = u.id
+      JOIN creneaux c ON i.creneau_id = c.id
       WHERE i.cours_id = ?
-    `,
+      `,
       [moduleId]
     );
-
     res.json(rows);
   } catch (error) {
     console.error("Erreur récupération des étudiants du module :", error);

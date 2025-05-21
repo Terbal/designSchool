@@ -17,9 +17,10 @@ import DetailsCours from "./components/DetailsCour";
 import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la route
 import FormulaireInscription from "./components/FormulaireInscription";
 import ContenuCours from "./pages/ContenuCours";
-import ChatClasse from "./pages/ChatClasse";
 import Messagerie from "./pages/Messagerie";
 import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardFomateur from "./pages/DashboardFormateur";
+// import ListeEtudiants from "./pages/ListeEtudiants";
 
 function App() {
   const { user, loading } = useAuth();
@@ -102,6 +103,18 @@ function App() {
         element={
           <PrivateRoute>
             {user?.role === "admin" ? <DashboardAdmin /> : <Navigate to="/" />}
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/dashboard-formateur"
+        element={
+          <PrivateRoute>
+            {user?.role === "formateur" ? (
+              <DashboardFomateur />
+            ) : (
+              <Navigate to="/" />
+            )}
           </PrivateRoute>
         }
       />

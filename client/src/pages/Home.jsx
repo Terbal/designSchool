@@ -20,7 +20,7 @@ const lightTheme = getDesignSchoolTheme("light");
 
 const Home = () => (
   <>
-    <Navbar />
+    {/* <Navbar /> */}
     <ThemeProvider theme={lightTheme}>
       <Box
         sx={{

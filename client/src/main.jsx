@@ -13,6 +13,7 @@ import {
   ColorModeContext,
 } from "./contexts/ColorModeContext.jsx";
 import { Toaster } from "react-hot-toast";
+import Navbar from "./components/Navbar.jsx";
 
 function Main() {
   // On récupère mode et toggle du contexte
@@ -24,7 +25,7 @@ function Main() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-
+      <Navbar />
       <App />
       <Toaster position="top-center" reverseOrder={false} />
     </ThemeProvider>

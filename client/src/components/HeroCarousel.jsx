@@ -14,16 +14,6 @@ const items = [
     desc: "Des parcours interactifs pour développer vos compétences",
     image: speak2Img,
   },
-  // {
-  //   title: "",
-  //   desc: "",
-  //   image: learnImg,
-  // },
-  // {
-  //   title: "",
-  //   desc: "",
-  //   image: speakImg,
-  // },
 ];
 
 // Animation "pulse"

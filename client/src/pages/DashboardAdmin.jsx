@@ -13,7 +13,7 @@ const DashboardAdmin = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <Box p={2} sx={{ pt: 10 }}>
         <Tabs value={tab} onChange={handleChange}>
           <Tab label="Cours" />

@@ -64,7 +64,7 @@ export default function DashboardEtudiant() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <Container maxWidth="xl" sx={{ mt: 4 }}>
         <Tabs
           value={tab}

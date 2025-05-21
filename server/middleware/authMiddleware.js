@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log("→ authHeader:", req.headers.authorization);
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res
@@ -15,6 +16,7 @@ export const verifyToken = (req, res, next) => {
   try {
     // Utilise la clé du .env
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret123");
+    console.log("Decoded payload:", decoded);
     req.user = {
       id: decoded.id,
       nom: decoded.nom, // ✅ disponible maintenant
