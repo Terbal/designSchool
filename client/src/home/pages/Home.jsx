@@ -1,14 +1,14 @@
 // src/pages/Home.jsx
 import { Box, ThemeProvider } from "@mui/material";
 import { motion } from "framer-motion"; // <== AJOUT
-import Navbar from "../components/Navbar";
+import Navbar from "../../components/Navbar";
 import HeroCarousel from "../components/HeroCarousel";
 import Presentation from "../components/Presentation";
 import Testimonials from "../components/Testimonials";
 import StatsSection from "../components/StatsSection";
 import PromoSection from "../components/PromoSection";
-import Footer from "../components/Footer";
-import getDesignSchoolTheme from "../theme";
+import Footer from "../../components/Footer";
+import getDesignSchoolTheme from "../../theme";
 
 // --- Animation par défaut pour les sections ---
 const sectionVariants = {

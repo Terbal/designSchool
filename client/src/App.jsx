@@ -1,18 +1,18 @@
 // src/App.jsx
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import Home from "./pages/Home";
+import Home from "./home/pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import DashboardEtudiant from "./pages/DashboardEtudiant";
+import DashboardEtudiant from "./students/DashboardEtudiant";
 import PrivateRoute from "./components/PrivateRoute";
 import Profil from "./pages/Profil";
 import AdminUsers from "./pages/AdminUsers";
 import AjoutCours from "./pages/AjoutCours";
 import ListeCours from "./pages/ListesCours";
 import ListeEtudiantsParModule from "./pages/ListeEtudiantsParModule";
-import MesCours from "./components/MesCours";
+import MesCours from "../../MesCours";
 import DetailsCours from "./components/DetailsCour";
 import { CircularProgress, Box } from "@mui/material"; // Pour spinner dans la route
 import FormulaireInscription from "./components/FormulaireInscription";

@@ -1,6 +1,6 @@
 // src/components/Presentation.jsx
 import { Box, Typography, Grid, Container } from "@mui/material";
-import schoolImg from "../../src/assets/learn.png"; // remplace par ton image réelle
+import schoolImg from "../../assets/learn.png"; // remplace par ton image réelle
 
 const Presentation = () => {
   return (
